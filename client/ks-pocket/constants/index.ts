@@ -25,6 +25,11 @@ const colors = {
   GRAY_700: "#333333",
   GRAY_800: "#191919",
   GRAY_900: "#000000",
+
+  RED_100: "#FEE2E2",
+  RED_300: "#FECACA",
+  RED_500: "#F56565",
+  RED_700: "#E53E3E",
 };
 
 export { colors };

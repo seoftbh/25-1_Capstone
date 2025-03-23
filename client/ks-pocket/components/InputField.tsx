@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import React from "react";
+import React, { ForwardedRef, forwardRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,18 +9,38 @@ import {
 } from "react-native";
 
 interface InputFieldProps extends TextInputProps {
-  label: string;
+  label?: string;
   variant?: "default" | "filled" | "outlined";
+  error?: string;
 }
 
-function InputField({ label, variant = "filled", ...props }: InputFieldProps) {
+function InputField(
+  { label, variant = "filled", error = "", ...props }: InputFieldProps,
+  ref: ForwardedRef<TextInput>
+) {
   return (
     <View>
       {/* label이 있을 경우에만 Text 컴포넌트를 렌더링 */}
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.container, styles[variant]]}>
-        <TextInput placeholderTextColor={colors.GRAY_500} style={styles.input} {...props} />
+      <View
+        style={[
+          styles.container,
+          styles[variant],
+          Boolean(error) && styles.inputError,
+        ]}
+      >
+        <TextInput
+          ref={ref}
+          placeholderTextColor={colors.GRAY_500}
+          style={styles.input}
+          autoCapitalize="none"
+          spellCheck={false}
+          autoCorrect={false}
+          {...props}
+        />
       </View>
+      {/* error가 있을 경우에만 Text 컴포넌트를 렌더링 */}
+      {Boolean(error) && <Text style={styles.error}>{error}</Text>}
     </View>
   );
 }
@@ -56,6 +76,16 @@ const styles = StyleSheet.create({
     padding: 0,
     flex: 1,
   },
+  error: {
+    fontSize: 12,
+    marginTop: 2,
+    marginLeft: 4,
+    color: colors.RED_500,
+  },
+  inputError: {
+    backgroundColor: colors.RED_100,
+    borderColor: colors.RED_500,
+  },
 });
 
-export default InputField;
+export default forwardRef(InputField);
