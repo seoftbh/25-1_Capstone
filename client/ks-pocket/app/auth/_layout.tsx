@@ -27,6 +27,15 @@ export default function AuthLayout() {
         options={{
           title: "로그인",
           headerShown: true,
+          headerBackButtonDisplayMode: "minimal",  // iOS에서 뒤로가기 버튼의 텍스트를 숨김
+        }}
+      />
+      <Stack.Screen
+        name="signup"
+        options={{
+          title: "회원가입",
+          headerShown: true,
+          headerBackButtonDisplayMode: "minimal",  // iOS에서 뒤로가기 버튼의 텍스트를 숨김
         }}
       />
     </Stack>

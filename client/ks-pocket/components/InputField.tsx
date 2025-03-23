@@ -27,8 +27,9 @@ function InputField({ label, variant = "filled", ...props }: InputFieldProps) {
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: 16,
-    marginBottom: 4,
+    fontSize: 12,
+    marginBottom: 6,
+    marginLeft: 4,
     color: colors.GRAY_700,
   },
   container: {
@@ -42,6 +43,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     height: 52,
     flexDirection: "row",
+    // marginBottom: 12,
   },
   filled: {
     backgroundColor: colors.GRAY_T100,

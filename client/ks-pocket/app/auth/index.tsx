@@ -15,8 +15,15 @@ export default function AuthScreen() {
         <Text style={commonStyles.h1}>인증 화면</Text>
       </View>
       <View style={styles.buttonContainer}>
-        <CustomButton label="로그인" onPress={() => {router.push('/auth/login')}} />
-        <Link href="/" style={styles.signupText}>회원가입</Link>
+        <CustomButton
+          label="로그인"
+          onPress={() => {
+            router.push("/auth/login");
+          }}
+        />
+        <Link href={"/auth/signup"} style={styles.signupText}>
+          회원가입
+        </Link>
       </View>
     </SafeAreaView>
   );

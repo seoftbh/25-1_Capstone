@@ -31,4 +31,7 @@ export const commonStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  safeArea: {
+    padding: 16,
+  }
 });
