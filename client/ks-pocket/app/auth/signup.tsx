@@ -5,13 +5,17 @@ import EmailInput from "@/components/EmailInput";
 import PasswordInput from "@/components/PasswordInput";
 import PasswordConfirmInput from "@/components/PasswordConfirmInput";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase"; // supabase 클라이언트 임포트 필요
+import { supabase } from "@/lib/supabase"; 
 import { router } from "expo-router";
+import NameInput from "@/components/NameInput";
+import DeptInput from "@/components/DeptInput";
 
 type FormValues = {
   email: string;
   password: string;
   passwordConfirm: string;
+  name: string;
+  dept: string;
 };
 
 export default function SignupScreen() {
@@ -23,6 +27,8 @@ export default function SignupScreen() {
       email: "",
       password: "",
       passwordConfirm: "",
+      name: "",
+      dept: "",
     },
   });
 
@@ -34,12 +40,38 @@ export default function SignupScreen() {
     } = await supabase.auth.signUp({
       email: formValues.email,
       password: formValues.password,
+      options: {
+        data: {
+          name: formValues.name,
+          dept: formValues.dept
+        }
+      }
     });
     
     if (error) {
       Alert.alert("회원가입 오류", error.message);
       setLoading(false);
       return;
+    }
+
+    // 프로필 정보를 별도 테이블에 저장 (필요한 경우)
+    if (session) {
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: session.user.id,
+            name: formValues.name,
+            dept: formValues.dept,
+            updated_at: new Date()
+          });
+          
+        if (profileError) {
+          console.error('프로필 정보 저장 오류:', profileError);
+        }
+      } catch (err) {
+        console.error('프로필 저장 중 예외 발생:', err);
+      }
     }
 
     setLoading(false);
@@ -76,7 +108,8 @@ export default function SignupScreen() {
   return (
     <FormProvider {...signupForm}>
       <View style={styles.container}>
-        {/* 이메일, 비밀번호 입력 폼 */}
+        <NameInput />
+        <DeptInput />
         <EmailInput />
         <PasswordInput submitBehavior="submit" />
         <PasswordConfirmInput />
