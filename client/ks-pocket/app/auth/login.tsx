@@ -40,28 +40,28 @@ export default function LoginScreen() {
       console.log("로그인 성공:", session);
       router.replace("/");
     }
-
-    const onSubmit = async (formValues: FormValues) => {
-      await signInWithEmail(formValues);
-    };
-
-    return (
-      <FormProvider {...loginForm}>
-        <View style={styles.container}>
-          {/* 이메일, 비밀번호 입력 폼 */}
-          <EmailInput />
-          <PasswordInput returnKeyType="done" />
-        </View>
-        <FixedBottomCTA
-          label="로그인"
-          onPress={() => {
-            loginForm.handleSubmit(onSubmit)();
-          }}
-          disabled={loading}
-        />
-      </FormProvider>
-    );
   }
+
+  const onSubmit = async (formValues: FormValues) => {
+    await signInWithEmail(formValues);
+  };
+
+  return (
+    <FormProvider {...loginForm}>
+      <View style={styles.container}>
+        {/* 이메일, 비밀번호 입력 폼 */}
+        <EmailInput />
+        <PasswordInput returnKeyType="done" />
+      </View>
+      <FixedBottomCTA
+        label="로그인"
+        onPress={() => {
+          loginForm.handleSubmit(onSubmit)();
+        }}
+        disabled={loading}
+      />
+    </FormProvider>
+  );
 }
 
 const styles = StyleSheet.create({
