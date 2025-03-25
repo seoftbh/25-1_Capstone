@@ -5,6 +5,8 @@ const colors = {
   GOLD_200: "#FFE9A9",
   GOLD_500: "#FFD664",
   GOLD_700: "#F0B62F",
+  GOLD_800: "#D99A0D",
+  GOLD_900: "#B47E00",
 
   BLUE_500: "#005BAA",
 

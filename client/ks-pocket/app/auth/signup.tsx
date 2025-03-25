@@ -34,10 +34,9 @@ export default function SignupScreen() {
 
   async function signUpWithEmail(formValues: FormValues) {
     setLoading(true);
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
+    
+    // 응답 구조 변경: data 객체 전체를 가져옴
+    const { data, error } = await supabase.auth.signUp({
       email: formValues.email,
       password: formValues.password,
       options: {
@@ -54,13 +53,21 @@ export default function SignupScreen() {
       return;
     }
 
-    // 프로필 정보를 별도 테이블에 저장 (필요한 경우)
-    if (session) {
+    const { session, user } = data;
+    console.log("회원가입 응답:", { session: !!session, user: !!user, userId: user?.id });
+    
+    // 사용자 ID 확인 (세션이 없어도 user는 있을 수 있음)
+    const userId = user?.id;
+    
+    // 프로필 정보 저장 시도 (session이 아닌 userId 사용)
+    if (userId) {
       try {
+        console.log("프로필 저장 시도 (userId):", userId);
+        
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
-            id: session.user.id,
+            id: userId,
             name: formValues.name,
             dept: formValues.dept,
             updated_at: new Date()
@@ -68,19 +75,24 @@ export default function SignupScreen() {
           
         if (profileError) {
           console.error('프로필 정보 저장 오류:', profileError);
+        } else {
+          console.log("프로필 저장 성공!");
         }
       } catch (err) {
         console.error('프로필 저장 중 예외 발생:', err);
       }
+    } else {
+      console.warn("사용자 ID를 찾을 수 없어 프로필을 저장할 수 없습니다.");
     }
 
     setLoading(false);
     
     if (session) {
-      console.log("회원가입 성공:", session);
+      // 이메일 인증이 필요 없거나 자동 로그인이 된 경우
+      console.log("회원가입 후 자동 로그인됨:", session.user.id);
       router.replace("/auth");
     } else {
-      // 이메일 인증이 필요한 경우, 확인 버튼을 누르면 /auth로 이동
+      // 이메일 인증이 필요한 경우
       Alert.alert(
         "이메일 확인", 
         "이메일 인증을 위해 메일함을 확인해주세요!", 

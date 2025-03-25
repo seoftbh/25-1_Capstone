@@ -12,19 +12,14 @@ export default function ShortcutList() {
         url="https://example.com"
       />
       <ShortcutItem
-        iconName="logo-github"
-        title="GitHub"
+        iconName="newspaper-outline"
+        title="공지사항"
         url="https://github.com"
       />
       <ShortcutItem
-        iconName="mail-outline"
-        title="이메일"
+        iconName="calendar-outline"
+        title="일정"
         url="mailto:test@example.com"
-      />
-      <ShortcutItem
-        iconName="call-outline"
-        title="전화 걸기"
-        url="tel:01012345678"
       />
     </ScrollView>
   );

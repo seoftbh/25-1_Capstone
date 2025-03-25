@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     borderColor: '#eaeaea',
   },
   button: {
-    backgroundColor: '#007AFF', // 기본 파란색
+    backgroundColor: colors.GOLD_700,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     // 혹은 투명도 조정: opacity: 0.5,
   },
   label: {
-    color: 'white',
+    color: colors.BROWN_800,
     fontSize: 16,
     fontWeight: '600',
   },
