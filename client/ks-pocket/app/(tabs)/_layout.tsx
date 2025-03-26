@@ -1,87 +1,47 @@
 import { colors } from "@/constants";
 import { Tabs } from "expo-router";
-import React from "react";
-import {
-  Ionicons as IonIcons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
-import CustomTabBarButton from "@/components/CustomTabBarButton";
+import React, { useEffect } from "react";
+import { BackHandler, Platform } from "react-native";
+import CustomTabBar from "@/components/CustomTabBar";
 
 export default function TabLayout() {
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={{
-        tabBarActiveTintColor: colors.GOLD_700,
         headerShown: false,
-        tabBarStyle: {
-          height: 68,
-          borderTopWidth: 0,
-          paddingTop: 6,
-        },
       }}
+      tabBar={(props) => <CustomTabBar {...props} />}
     >
-      <Tabs.Screen
-        name="bus"
-        options={{
-          title: "버스",
-          tabBarIcon: ({ color, focused }) => (
-            <IonIcons
-              name={focused ? "bus" : "bus-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: "지도",
-          tabBarIcon: ({ color, focused }) => (
-            <IonIcons
-              name={focused ? "map" : "map-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="index"
+      {/* 내비게이션 순서: index가 첫 번째 */}
+      <Tabs.Screen 
+        name="index" 
         options={{
           title: "Home",
-          tabBarIcon: () => null,
-          tabBarButton: (props) => <CustomTabBarButton {...props} />,
         }}
       />
-      <Tabs.Screen
-        name="board"
+      <Tabs.Screen 
+        name="bus" 
+        options={{
+          title: "버스",
+        }}
+      />
+      <Tabs.Screen 
+        name="map" 
+        options={{
+          title: "지도",
+        }}
+      />
+      <Tabs.Screen 
+        name="board" 
         options={{
           title: "게시판",
-          tabBarIcon: ({ color, focused }) => (
-            <IonIcons
-              name={focused ? "create" : "create-outline"}
-              size={24}
-              color={color}
-            />
-          ),
         }}
       />
-      <Tabs.Screen
-        name="more"
+      <Tabs.Screen 
+        name="more" 
         options={{
           title: "더보기",
-          tabBarIcon: ({ color, focused }) => (
-            <IonIcons
-              name={
-                focused
-                  ? "ellipsis-horizontal-circle-sharp"
-                  : "ellipsis-horizontal-circle"
-              }
-              size={24}
-              color={color}
-            />
-          ),
         }}
       />
     </Tabs>

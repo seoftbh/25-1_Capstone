@@ -2,7 +2,11 @@ import { colors } from "@/constants";
 import React from "react";
 import { TouchableOpacity, Image, View, StyleSheet } from "react-native";
 
-const CustomTabBarButton = ({ children, onPress }: any) => {
+interface CustomTabBarButtonProps {
+  onPress?: () => void;
+}
+
+export default function CustomTabBarButton({ onPress }: CustomTabBarButtonProps) {
   return (
     <TouchableOpacity
       style={styles.container}
@@ -44,5 +48,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-
-export default CustomTabBarButton;
