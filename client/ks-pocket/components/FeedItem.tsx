@@ -76,6 +76,8 @@ const styles = StyleSheet.create({
   menuContainer: {
     // backgroundColor: "lightblue",
     backgroundColor: colors.GRAY_T100,
+    borderBottomStartRadius: 12,
+    borderBottomEndRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",

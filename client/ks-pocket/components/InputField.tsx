@@ -26,13 +26,17 @@ function InputField(
         style={[
           styles.container,
           styles[variant],
+          props.multiline && styles.multiLine,
           Boolean(error) && styles.inputError,
         ]}
       >
         <TextInput
           ref={ref}
           placeholderTextColor={colors.GRAY_500}
-          style={styles.input}
+          style={[
+            styles.input,
+            props.multiline && styles.multiLineInput
+          ]}
           autoCapitalize="none"
           spellCheck={false}
           autoCorrect={false}
@@ -76,6 +80,11 @@ const styles = StyleSheet.create({
     padding: 0,
     flex: 1,
   },
+  multiLineInput: {
+    textAlignVertical: 'top',
+    height: 'auto', // 컨테이너 높이에 맞게 조정 (200 - 패딩)
+    paddingTop: 4, // 상단 패딩 추가
+  },
   error: {
     fontSize: 12,
     marginTop: 2,
@@ -85,6 +94,11 @@ const styles = StyleSheet.create({
   inputError: {
     backgroundColor: colors.RED_100,
     borderColor: colors.RED_500,
+  },
+  multiLine: {
+    alignItems: "flex-start",
+    paddingVertical: 8,
+    height: 200,
   },
 });
 
