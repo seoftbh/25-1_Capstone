@@ -20,9 +20,13 @@ import Toast, { BaseToast } from "react-native-toast-message";
 import { supabase } from "@/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors } from "@/constants";
+import { useNavigation, useSegments } from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+// 새로운 키 정의 - 로그인 상태 추적용
+const LOGIN_STATE_KEY = "just_logged_in";
 
 // Toast 설정
 const toastConfig = {
@@ -53,8 +57,61 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const [userName, setUserName] = useState<string | null>(null);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const segments = useSegments();
 
-  // supabase를 이용해 세션 정보 로드
+  // 로그인 상태 확인 및 토스트 표시 로직
+  useEffect(() => {
+    const checkLoginState = async () => {
+      try {
+        // 현재 세션 가져오기
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          return;
+        }
+        
+        // 방금 로그인했는지 확인
+        const justLoggedIn = await AsyncStorage.getItem(LOGIN_STATE_KEY);
+        
+        if (justLoggedIn === 'true') {
+          // 로그인 상태 초기화 (한 번만 표시하기 위해)
+          await AsyncStorage.removeItem(LOGIN_STATE_KEY);
+          
+          // 사용자 프로필 정보 가져오기
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("name")
+            .eq("id", session.user.id)
+            .single();
+          
+          if (profileData) {
+            const name = profileData.name || session.user.email?.split("@")[0] || "사용자";
+            
+            // 토스트 메시지 표시 (약간의 지연 추가)
+            setTimeout(() => {
+              Toast.show({
+                type: "success",
+                text1: `${name}님, 반가워요!`,
+                text2: "경성포켓",
+                position: "top",
+                visibilityTime: 3000,
+              });
+            }, 300);
+          }
+        }
+      } catch (error) {
+        console.error("로그인 상태 확인 중 오류:", error);
+      }
+    };
+    
+    // segments가 변경되어 홈 화면으로 이동했을 때만 체크
+    if (segments[0] === '(tabs)') {
+      checkLoginState();
+    }
+  }, [segments]);
+
+  // 기존의 세션 로드 로직은 유지
   useEffect(() => {
     const getSession = async () => {
       try {
@@ -95,19 +152,6 @@ export default function RootLayout() {
 
     getSession();
   }, []);
-
-  // 사용자 이름이 로드되면 환영 메시지 표시
-  useEffect(() => {
-    if (userName) {
-      Toast.show({
-        type: "success",
-        text1: `${userName}님, 반가워요!`,
-        text2: "경성포켓",
-        position: "top",
-        visibilityTime: 3000,
-      });
-    }
-  }, [userName]);
 
   useEffect(() => {
     if (loaded) {

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase"; // supabase 클라이언트 임포트 필요
 import { router } from "expo-router";
 import { Session } from "@supabase/supabase-js"; // Session 타입 추가
+import AsyncStorage from "@react-native-async-storage/async-storage"; // AsyncStorage 임포트 필요
 
 type FormValues = {
   email: string;
@@ -40,6 +41,7 @@ export default function LoginScreen() {
     if (session) {
       console.log("로그인 성공:", session);
       await checkAndCreateProfileIfNeeded(session);
+      await AsyncStorage.setItem("just_logged_in", "true");
       router.replace("/");
     }
   }
