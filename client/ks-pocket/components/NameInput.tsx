@@ -26,6 +26,7 @@ function NameInput() {
           onChangeText={onChange}
           onSubmitEditing={() => setFocus("dept")}
           returnKeyType="next"
+          autoFocus // 화면이 렌더링될 때 자동으로 포커스
         />
       )}
     />

@@ -34,4 +34,11 @@ const colors = {
   RED_700: "#E53E3E",
 };
 
-export { colors };
+const queryKeys = {
+  AUTH: "auth",
+  GET_ME: "getMe",
+  POST: "posts",
+  GET_POSTS: "getPosts",
+}
+
+export { colors, queryKeys };
