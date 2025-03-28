@@ -1,8 +1,13 @@
 import { colors } from "@/constants";
 import React, { ReactNode } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko"; // 한국어 로케일 추가
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
 
-interface ProfileProps {
+interface FeedHeaderProps {
   onPress: () => void;
   nickname: string;
   imageUri?: string; // 이미지가 없을 수도 있으므로 선택적으로 설정
@@ -10,13 +15,13 @@ interface ProfileProps {
   option?: ReactNode;
 }
 
-function Profile({
+function FeedHeader({
   onPress,
   imageUri,
   nickname,
   createdAt,
   option,
-}: ProfileProps) {
+}: FeedHeaderProps) {
   return (
     <View style={styles.container}>
       <Pressable style={styles.profileContainer} onPress={onPress}>
@@ -30,7 +35,7 @@ function Profile({
         />
         <View style={{ gap: 2 }}>
           <Text style={styles.nickname}>{nickname}</Text>
-          <Text style={styles.createdat}>{createdAt}</Text>
+          <Text style={styles.createdat}>{dayjs(createdAt).fromNow()}</Text>
         </View>
       </Pressable>
       {option}
@@ -68,4 +73,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile;
+export default FeedHeader;

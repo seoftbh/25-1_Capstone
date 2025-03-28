@@ -3,7 +3,7 @@ import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Profile from "./Profile";
+import Profile from "./FeedHeader";
 
 interface FeedItemProps {
   post: Post;
@@ -37,7 +37,7 @@ function FeedItem({ post }: FeedItemProps) {
           <Ionicons
             name={isLiked ? "heart" : "heart-outline"}
             size={16}
-            color={isLiked ? colors.GOLD_700 : colors.GRAY_500}
+            color={isLiked ? colors.RED_500 : colors.GRAY_500}
           />
           <Text style={isLiked ? styles.activeMenuText : styles.menuText}>
             1
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   activeMenuText: {
     fontWeight: "600",
-    color: colors.GOLD_700,
+    color: colors.RED_500,
   },
   title: {
     fontSize: 18,
