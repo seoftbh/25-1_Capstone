@@ -2,6 +2,7 @@ import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
+import { Post } from "@/types";
 
 async function createPost(body: { title: string; description: string }) {
     // 게시물 생성
@@ -21,18 +22,22 @@ async function createPost(body: { title: string; description: string }) {
   return data;
 }
 
-// async function getPosts() {
-//     // 모든 게시물 가져오기
-//   const { data } = await supabase
-//     .from("posts")
-//     .select("*")
-//     .order("created_at", { ascending: false });
-//   return data;
-// }
-
-async function getPosts(page = 1): Promise<Post []> {
-    const { data } = await axiosInstance.get(`/posts?page=${page}`);
-    return data;
+async function getPosts(page = 1, limit = 10): Promise<Post[]> {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .range(from, to);
+    
+  if (error) {
+    console.error("Error fetching posts:", error.message);
+    return [];
+  }
+  
+  return data || [];
 }
 
 async function getPostById(id : string) {
