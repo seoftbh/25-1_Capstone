@@ -5,6 +5,8 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import FeedHeader from "./FeedHeader";
 import { useActionSheet } from "@expo/react-native-action-sheet";
+import useDeletePost from "@/hooks/queries/useDeletePost";
+import { router } from "expo-router";
 
 interface FeedItemProps {
   post: Post;
@@ -13,6 +15,8 @@ interface FeedItemProps {
 function FeedItem({ post }: FeedItemProps) {
   const isLiked = false;
   const { showActionSheetWithOptions } = useActionSheet();
+  const deletePost = useDeletePost();
+  
 
   const handlePressOption = () => {
     const options = ["삭제", "수정", "취소"];
@@ -29,12 +33,20 @@ function FeedItem({ post }: FeedItemProps) {
         switch (selectedIndex) {
           case destructiveButtonIndex:
             // 삭제 처리
+            console.log("삭제");
+            deletePost.mutate(post.id);
             break;
           case 1:
             // 수정 처리
+            console.log("수정");
+            router.push({
+              pathname: "/post/update/[id]",
+              params: { id: post.id }
+            });
             break;
           default:
             // 취소 처리
+            console.log("취소");
             break;
         }
       }

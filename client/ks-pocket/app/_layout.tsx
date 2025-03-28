@@ -21,7 +21,8 @@ import { supabase } from "@/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors } from "@/constants";
 import { useNavigation, useSegments } from "expo-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/api/queryClient";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -53,9 +54,6 @@ const toastConfig = {
     />
   ),
 };
-
-// React Query 클라이언트 생성
-const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [loaded] = useFonts({

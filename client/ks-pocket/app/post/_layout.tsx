@@ -1,15 +1,17 @@
 import { colors } from "@/constants";
 import { Ionicons } from "@expo/vector-icons";
-import { Link, Stack } from "expo-router";
+import { Link, router, Stack } from "expo-router";
 
 export default function PostLayout() {
   return (
-    <Stack screenOptions={{
-      headerTintColor: colors.BLACK,
-      contentStyle: {
-        backgroundColor: colors.WHITE,
-      },
-    }}>
+    <Stack
+      screenOptions={{
+        headerTintColor: colors.BLACK,
+        contentStyle: {
+          backgroundColor: colors.WHITE,
+        },
+      }}
+    >
       <Stack.Screen
         name="write"
         options={{
@@ -19,6 +21,21 @@ export default function PostLayout() {
             <Link href={"/board"} replace>
               <Ionicons name="chevron-back" size={24} color={"black"} />
             </Link>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="update/[id]"
+        options={{
+          title: "수정",
+          headerShown: true,
+          headerLeft: () => (
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={"black"}
+              onPress={() => router.back()}
+            />
           ),
         }}
       />
