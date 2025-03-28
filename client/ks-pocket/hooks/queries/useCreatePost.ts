@@ -13,6 +13,8 @@ type PostFormValues = {
   title: string;
   description: string;
   imageUris: string[];
+  name?: string;    // 사용자 이름 (선택적)
+  dept?: string;    // 사용자 학과 (선택적)
 };
 
 export default function useCreatePost() {
@@ -28,13 +30,26 @@ export default function useCreatePost() {
         throw new Error("로그인이 필요합니다");
       }
 
-      // posts 테이블에 데이터 삽입 - 이미지 필드 제외
+      // 사용자 프로필 정보 가져오기
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("name, dept")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) {
+        console.error("프로필 정보 가져오기 오류:", profileError);
+      }
+
+      // posts 테이블에 데이터 삽입 - 이름과 학과 정보 포함
       const { data, error } = await supabase
         .from("posts")
         .insert({
           title: postData.title,
           description: postData.description,
           user_id: user.id,
+          name: postData.name || profileData?.name || null,
+          dept: postData.dept || profileData?.dept || null,
           // image_urls 필드 제거
         })
         .select()

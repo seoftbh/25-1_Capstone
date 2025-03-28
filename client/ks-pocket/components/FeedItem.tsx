@@ -3,7 +3,8 @@ import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Profile from "./FeedHeader";
+import FeedHeader from "./FeedHeader";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 
 interface FeedItemProps {
   post: Post;
@@ -11,16 +12,59 @@ interface FeedItemProps {
 
 function FeedItem({ post }: FeedItemProps) {
   const isLiked = false;
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const handlePressOption = () => {
+    const options = ["삭제", "수정", "취소"];
+    const cancelButtonIndex = 2;
+    const destructiveButtonIndex = 0;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        destructiveButtonIndex,
+      },
+      (selectedIndex?: number) => {
+        switch (selectedIndex) {
+          case destructiveButtonIndex:
+            // 삭제 처리
+            break;
+          case 1:
+            // 수정 처리
+            break;
+          default:
+            // 취소 처리
+            break;
+        }
+      }
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* 피드 내용 **************************/}
       <View style={styles.contentContainer}>
         {/* 프로필 */}
-        <Profile
+        <FeedHeader
           imageUri={post.author.imageUri}
-          nickname={post.author.nickname}
+          nickname={post.name || post.author.nickname}
+          dept={post.dept}
           createdAt={post.createdAt}
           onPress={() => {}}
+          option={
+            <Pressable
+              onPress={() => {
+                handlePressOption();
+              }}
+            >
+              <Ionicons
+                name="ellipsis-horizontal"
+                size={20}
+                color={colors.GRAY_500}
+              />
+            </Pressable>
+          }
         />
         {/* 피드 제목 */}
         <Text style={styles.title}>{post.title}</Text>

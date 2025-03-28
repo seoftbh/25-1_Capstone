@@ -79,6 +79,8 @@ interface Post {
   viewCount: number;
   votes?: PostVote[];
   comments?: PostComment[];
+  name?: string;
+  dept?: string;
 }
 
 export type {

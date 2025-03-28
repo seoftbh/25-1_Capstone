@@ -22,6 +22,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors } from "@/constants";
 import { useNavigation, useSegments } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -69,29 +70,33 @@ export default function RootLayout() {
     const checkLoginState = async () => {
       try {
         // 현재 세션 가져오기
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error || !session) {
           return;
         }
-        
+
         // 방금 로그인했는지 확인
         const justLoggedIn = await AsyncStorage.getItem(LOGIN_STATE_KEY);
-        
-        if (justLoggedIn === 'true') {
+
+        if (justLoggedIn === "true") {
           // 로그인 상태 초기화 (한 번만 표시하기 위해)
           await AsyncStorage.removeItem(LOGIN_STATE_KEY);
-          
+
           // 사용자 프로필 정보 가져오기
           const { data: profileData } = await supabase
             .from("profiles")
             .select("name")
             .eq("id", session.user.id)
             .single();
-          
+
           if (profileData) {
-            const name = profileData.name || session.user.email?.split("@")[0] || "사용자";
-            
+            const name =
+              profileData.name || session.user.email?.split("@")[0] || "사용자";
+
             // 토스트 메시지 표시 (약간의 지연 추가)
             setTimeout(() => {
               Toast.show({
@@ -108,9 +113,9 @@ export default function RootLayout() {
         console.error("로그인 상태 확인 중 오류:", error);
       }
     };
-    
+
     // segments가 변경되어 홈 화면으로 이동했을 때만 체크
-    if (segments[0] === '(tabs)') {
+    if (segments[0] === "(tabs)") {
       checkLoginState();
     }
   }, [segments]);
@@ -168,16 +173,18 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="auth" options={{ headerShown: false }} />
-          <Stack.Screen name="post" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <Toast config={toastConfig} />
-      </>
-    </QueryClientProvider>
+    <ActionSheetProvider>
+      <QueryClientProvider client={queryClient}>
+        <>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="auth" options={{ headerShown: false }} />
+            <Stack.Screen name="post" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <Toast config={toastConfig} />
+        </>
+      </QueryClientProvider>
+    </ActionSheetProvider>
   );
 }

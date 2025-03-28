@@ -10,6 +10,7 @@ dayjs.locale("ko");
 interface FeedHeaderProps {
   onPress: () => void;
   nickname: string;
+  dept?: string; // 학과 정보 추가
   imageUri?: string; // 이미지가 없을 수도 있으므로 선택적으로 설정
   createdAt: string;
   option?: ReactNode;
@@ -19,6 +20,7 @@ function FeedHeader({
   onPress,
   imageUri,
   nickname,
+  dept,
   createdAt,
   option,
 }: FeedHeaderProps) {
@@ -34,7 +36,10 @@ function FeedHeader({
           style={styles.image}
         />
         <View style={{ gap: 2 }}>
-          <Text style={styles.nickname}>{nickname}</Text>
+          <View style={styles.userInfoContainer}>
+            <Text style={styles.nickname}>{nickname}</Text>
+            {dept && <Text style={styles.dept}>{dept}</Text>}
+          </View>
           <Text style={styles.createdat}>{dayjs(createdAt).fromNow()}</Text>
         </View>
       </Pressable>
@@ -63,9 +68,18 @@ const styles = StyleSheet.create({
     borderColor: colors.GRAY_300,
     marginRight: 6,
   },
+  userInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   nickname: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  dept: {
+    fontSize: 14,
+    color: colors.GRAY_700,
   },
   createdat: {
     fontSize: 14,

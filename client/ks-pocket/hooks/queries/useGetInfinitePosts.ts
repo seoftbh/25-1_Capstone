@@ -30,9 +30,14 @@ export default function useGetInfinitePosts() {
         title: item.title,
         description: item.description,
         createdAt: item.created_at,
+        name: item.name, // name 필드 추가
+        dept: item.dept, // dept 필드 추가
         // @/types의 Post 타입에 필요한 다른 속성들도 여기서 매핑
         // 예를 들어 author, imageUris 등이 필요하다면 여기서 변환
-        author: item.author || { name: "Unknown", avatar: "" },
+        author: {
+          nickname: item.name || "Unknown", // name을 nickname으로 사용
+          imageUri: item.avatar || "" // avatar 필드가 있다면 사용
+        },
         imageUris: item.image_uris || [],
         // 그 외 필요한 필드들
       })) as Post[];
