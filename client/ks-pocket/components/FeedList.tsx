@@ -4,8 +4,8 @@
 |--------------------------------------------------
 */
 
-import React from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View, RefreshControl } from "react-native";
 import FeedItem from "./FeedItem";
 import { colors } from "@/constants";
 import useGetInfinitePosts from "@/hooks/queries/useGetInfinitePosts";
@@ -20,8 +20,24 @@ function FeedList() {
     hasNextPage, 
     isFetchingNextPage, 
     isLoading,
-    isError
+    isError,
+    refetch,
+    isRefetching
   } = useGetInfinitePosts();
+
+  const [refreshing, setRefreshing] = useState(false);
+  
+  // 새로고침 함수 수정
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    
+    try {
+      await refetch();
+    } finally {
+      // 새로고침 상태 초기화
+      setRefreshing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -53,6 +69,14 @@ function FeedList() {
         }
       }}
       onEndReachedThreshold={0.5}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing} // isRefetching 대신 로컬 상태 사용
+          onRefresh={handleRefresh}
+          colors={[colors.GOLD_700]}
+          tintColor={colors.GOLD_700}
+        />
+      }
       ListFooterComponent={
         isFetchingNextPage ? (
           <View style={styles.footer}>
