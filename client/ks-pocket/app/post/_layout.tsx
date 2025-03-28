@@ -16,7 +16,7 @@ export default function PostLayout() {
           title: "글쓰기",
           headerShown: true,
           headerLeft: () => (
-            <Link href={"/"} replace>
+            <Link href={"/board"} replace>
               <Ionicons name="chevron-back" size={24} color={"black"} />
             </Link>
           ),

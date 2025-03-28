@@ -14,7 +14,7 @@ import { colors } from "@/constants";
 
 export default function BoardScreen() {
   return (
-    <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
+    <SafeAreaView style={[styles.container]}>
       <FeedList />
       <Pressable style={styles.writeButton} onPress={() => router.push("/post/write")}>
         <Ionicons name="add" size={36} color="white" />

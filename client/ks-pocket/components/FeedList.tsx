@@ -56,7 +56,7 @@ function FeedList() {
       ListFooterComponent={
         isFetchingNextPage ? (
           <View style={styles.footer}>
-            <ActivityIndicator size="small" color={colors.GOLD_700} />
+            <ActivityIndicator size="large" color={colors.GOLD_700} />
           </View>
         ) : null
       }
@@ -72,7 +72,9 @@ function FeedList() {
 const styles = StyleSheet.create({
   contentContainer: {
     gap: 12,
-    paddingBottom: 20,
+    paddingBottom: 72,
+    // backgroundColor: 'pink',
+    padding: 16,
   },
   centerContainer: {
     flex: 1,

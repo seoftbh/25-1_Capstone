@@ -1,3 +1,9 @@
+/**
+|--------------------------------------------------
+| 글쓰기 screen의 저장 버튼
+|--------------------------------------------------
+*/
+
 import { supabase } from "@/lib/supabase";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
