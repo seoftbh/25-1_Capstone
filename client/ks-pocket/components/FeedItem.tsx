@@ -98,6 +98,21 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
         <Text numberOfLines={3} style={styles.desc}>
           {post.description}
         </Text>
+        {/* 조회수 및 댓글 수 */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Ionicons name="eye-outline" size={16} color={colors.GRAY_500} />
+            <Text style={styles.statText}>
+              {post.viewCount || post.viewCount || 0}
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="chatbubble-outline" size={16} color={colors.GRAY_500} />
+            <Text style={styles.statText}>
+              {post.comment_count || post.comment_count || 0}
+            </Text>
+          </View>
+        </View>
       </View>
 
       {/* 메뉴 ******************************/}
@@ -110,18 +125,22 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
             color={isLiked ? colors.RED_500 : colors.GRAY_500}
           />
           <Text style={isLiked ? styles.activeMenuText : styles.menuText}>
-            1
+            {/* {post.likes || 0} */}
           </Text>
         </Pressable>
         <Pressable style={styles.menu}>
           {/* 댓글 */}
           <Ionicons name="chatbox-outline" size={16} color={colors.GRAY_500} />
-          <Text style={styles.menuText}>1</Text>
+          <Text style={styles.menuText}>
+            {post.comment_count || post.comment_count || 0}
+          </Text>
         </Pressable>
         <Pressable style={styles.menu}>
           {/* 조회수 */}
           <Ionicons name="eye-outline" size={16} color={colors.GRAY_500} />
-          <Text style={styles.menuText}>1</Text>
+          <Text style={styles.menuText}>
+            {post.viewCount || post.viewCount || 0}
+          </Text>
         </Pressable>
       </View>
     </ContainerComponent>
@@ -142,6 +161,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     // backgroundColor: "pink",
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  statText: {
+    marginLeft: 4,
+    fontSize: 14,
+    color: colors.GRAY_500,
   },
   menuContainer: {
     // backgroundColor: "lightblue",

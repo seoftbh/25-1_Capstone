@@ -52,12 +52,21 @@ interface PostVote {
   title: string;
   options: PostVoteOption[];
 }
+// interface Comment {
+//   id: number;
+//   content: string;
+//   createdAt: string;
+//   user: User;
+//   isDeleted: boolean;
+// }
 interface Comment {
-  id: number;
+  id: string;
+  create_at: string;
+  post_id: number;
+  user_id: string;
+  name: string;
+  dept: string;
   content: string;
-  createdAt: string;
-  user: User;
-  isDeleted: boolean;
 }
 
 interface PostComment extends Comment {
@@ -75,7 +84,7 @@ interface Post {
   likes: { userId: number }[];
   hasVote: boolean;
   voteCount: number;
-  commentCount: number;
+  comment_count: number;
   viewCount: number;
   votes?: PostVote[];
   comments?: PostComment[];

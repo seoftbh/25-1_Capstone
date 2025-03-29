@@ -4,45 +4,66 @@
 |--------------------------------------------------
 */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View, RefreshControl } from "react-native";
 import FeedItem from "./FeedItem";
+import { getPosts } from "@/api/post";
+import { useFocusEffect } from "expo-router";
 import { colors } from "@/constants";
-import useGetInfinitePosts from "@/hooks/queries/useGetInfinitePosts";
-import { Post } from "@/types";
+import { supabase } from "@/lib/supabase";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-// 게시글은 10개씩 가져오고, 스크롤 시 다음 페이지를 가져오는 방식으로 구현
+export default function FeedList() {
+  const queryClient = useQueryClient();
 
-function FeedList() {
-  const { 
-    data: posts, 
-    fetchNextPage, 
-    hasNextPage, 
-    isFetchingNextPage, 
+  // 게시물 데이터 쿼리
+  const {
+    data: posts,
     isLoading,
-    isError,
     refetch,
-    isRefetching
-  } = useGetInfinitePosts();
+    isError,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: () => getPosts(),
+  });
 
-  const [refreshing, setRefreshing] = useState(false);
-  
-  // 새로고침 함수 수정
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    
-    try {
-      await refetch();
-    } finally {
-      // 새로고침 상태 초기화
-      setRefreshing(false);
-    }
-  };
+  // 화면에 포커스될 때마다 데이터 새로고침
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+      return () => {};
+    }, [refetch])
+  );
+
+  // Supabase 실시간 업데이트 구독 (선택 사항)
+  useEffect(() => {
+    // 게시물 테이블 변경 구독
+    const subscription = supabase
+      .channel("public:posts")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "posts",
+        },
+        (payload) => {
+          // 변경 발생 시 데이터 새로고침
+          queryClient.invalidateQueries({ queryKey: ["posts"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      // 컴포넌트 언마운트 시 구독 해제
+      subscription.unsubscribe();
+    };
+  }, [queryClient]);
 
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={colors.GOLD_700} />
+        <Text>로딩 중...</Text>
       </View>
     );
   }
@@ -50,69 +71,41 @@ function FeedList() {
   if (isError) {
     return (
       <View style={styles.centerContainer}>
-        <Text>오류가 발생했습니다. 다시 시도해주세요.</Text>
+        <Text>데이터를 불러오는데 실패했습니다.</Text>
       </View>
     );
   }
 
-  const flattenedData = posts?.pages.flat() || [];
-
   return (
     <FlatList
-      data={flattenedData}
+      data={posts}
       renderItem={({ item }) => <FeedItem post={item} />}
-      keyExtractor={(item) => String(item.id)}
-      contentContainerStyle={styles.contentContainer}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }}
-      onEndReachedThreshold={0.5}
+      keyExtractor={(item) => item.id.toString()}
+      contentContainerStyle={styles.listContainer}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
       refreshControl={
         <RefreshControl
-          refreshing={refreshing} // isRefetching 대신 로컬 상태 사용
-          onRefresh={handleRefresh}
+          refreshing={isLoading}
+          onRefresh={refetch}
           colors={[colors.GOLD_700]}
-          tintColor={colors.GOLD_700}
         />
-      }
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <View style={styles.footer}>
-            <ActivityIndicator size="large" color={colors.GOLD_700} />
-          </View>
-        ) : null
-      }
-      ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <Text>게시글이 없습니다.</Text>
-        </View>
       }
     />
   );
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    gap: 12,
-    paddingBottom: 72,
-    // backgroundColor: 'pink',
+  listContainer: {
     padding: 16,
+    paddingBottom: 80, // 하단 버튼을 가리지 않도록 패딩 추가
+  },
+  separator: {
+    height: 16,
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  footer: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  emptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    alignItems: 'center',
-  }
+  },
 });
-
-export default FeedList;
