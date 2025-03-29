@@ -25,6 +25,23 @@ export default function PostLayout() {
         }}
       />
       <Stack.Screen
+        name="[id]"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerLeft: () => (
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={"black"}
+              onPress={() =>
+                router.canGoBack() ? router.back() : router.replace("/")
+              }
+            />
+          ),
+        }}
+      />
+      <Stack.Screen
         name="update/[id]"
         options={{
           title: "수정",

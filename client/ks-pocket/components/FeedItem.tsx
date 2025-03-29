@@ -10,13 +10,13 @@ import { router } from "expo-router";
 
 interface FeedItemProps {
   post: Post;
+  isDetail?: boolean;
 }
 
-function FeedItem({ post }: FeedItemProps) {
+function FeedItem({ post, isDetail = false }: FeedItemProps) {
   const isLiked = false;
   const { showActionSheetWithOptions } = useActionSheet();
   const deletePost = useDeletePost();
-  
 
   const handlePressOption = () => {
     const options = ["삭제", "수정", "취소"];
@@ -34,14 +34,18 @@ function FeedItem({ post }: FeedItemProps) {
           case destructiveButtonIndex:
             // 삭제 처리
             console.log("삭제");
-            deletePost.mutate(post.id);
+            deletePost.mutate(post.id, {
+              onSuccess: () => {
+                isDetail && router.back();
+              }, // 삭제 후 상세 페이지에서 뒤로가기
+            });
             break;
           case 1:
             // 수정 처리
             console.log("수정");
             router.push({
               pathname: "/post/update/[id]",
-              params: { id: post.id }
+              params: { id: post.id },
             });
             break;
           default:
@@ -53,14 +57,24 @@ function FeedItem({ post }: FeedItemProps) {
     );
   };
 
+  const handlePressFeed = () => {
+    console.log("피드 눌림");
+    if (!isDetail) {
+      // 피드 상세 페이지가 아닐 때만 이동
+      router.push(`/post/${post.id}`);
+    }
+  };
+
+  const ContainerComponent = isDetail ? View : Pressable; // 상세 페이지가 아닐 때만 Pressable로 설정
+
   return (
-    <View style={styles.container}>
+    <ContainerComponent style={styles.container} onPress={handlePressFeed}>
       {/* 피드 내용 **************************/}
       <View style={styles.contentContainer}>
         {/* 프로필 */}
         <FeedHeader
-          imageUri={post.author.imageUri}
-          nickname={post.name || post.author.nickname}
+          imageUri={post.author?.imageUri}
+          nickname={post.name || post.author?.nickname}
           dept={post.dept}
           createdAt={post.createdAt}
           onPress={() => {}}
@@ -110,7 +124,7 @@ function FeedItem({ post }: FeedItemProps) {
           <Text style={styles.menuText}>1</Text>
         </Pressable>
       </View>
-    </View>
+    </ContainerComponent>
   );
 }
 

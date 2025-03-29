@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import React, { ForwardedRef, forwardRef } from "react";
+import React, { ForwardedRef, forwardRef, ReactNode } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,10 +12,17 @@ interface InputFieldProps extends TextInputProps {
   label?: string;
   variant?: "default" | "filled" | "outlined";
   error?: string;
+  rightChild?: ReactNode;
 }
 
 function InputField(
-  { label, variant = "filled", error = "", ...props }: InputFieldProps,
+  {
+    label,
+    variant = "filled",
+    error = "",
+    rightChild = null,
+    ...props
+  }: InputFieldProps,
   ref: ForwardedRef<TextInput>
 ) {
   return (
@@ -33,15 +40,14 @@ function InputField(
         <TextInput
           ref={ref}
           placeholderTextColor={colors.GRAY_500}
-          style={[
-            styles.input,
-            props.multiline && styles.multiLineInput
-          ]}
+          style={[styles.input, props.multiline && styles.multiLineInput]}
           autoCapitalize="none"
           spellCheck={false}
           autoCorrect={false}
           {...props}
         />
+        {/** 오른쪽에 추가할 컴포넌트 */}
+        {rightChild}
       </View>
       {/* error가 있을 경우에만 Text 컴포넌트를 렌더링 */}
       {Boolean(error) && <Text style={styles.error}>{error}</Text>}
@@ -81,8 +87,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   multiLineInput: {
-    textAlignVertical: 'top',
-    height: 'auto', // 컨테이너 높이에 맞게 조정 (200 - 패딩)
+    textAlignVertical: "top",
+    height: "auto", // 컨테이너 높이에 맞게 조정 (200 - 패딩)
     paddingTop: 4, // 상단 패딩 추가
   },
   error: {
