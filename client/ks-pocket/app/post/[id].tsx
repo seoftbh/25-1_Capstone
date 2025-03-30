@@ -1,6 +1,6 @@
 /**
 |--------------------------------------------------
-| Post Detail Screen
+| Post Detail Screen + Comment Section
 |--------------------------------------------------
 */
 
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.WHITE,
-    padding: 16,
+    padding: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.GRAY_300,
     elevation: 1,
@@ -242,8 +242,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   commentSendBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 2,
+    paddingVertical: 4,
+    // paddingHorizontal: ,
+    marginRight: -4,
     marginLeft: 8,
   },
 });

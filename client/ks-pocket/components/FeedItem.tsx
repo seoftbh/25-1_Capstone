@@ -1,12 +1,14 @@
 import { colors } from "@/constants";
 import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import FeedHeader from "./FeedHeader";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import useDeletePost from "@/hooks/queries/useDeletePost";
 import { router } from "expo-router";
+import { useAuthStore } from "@/api/auth";
+import { supabase } from "@/lib/supabase";
 
 interface FeedItemProps {
   post: Post;
@@ -17,6 +19,10 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
   const isLiked = false;
   const { showActionSheetWithOptions } = useActionSheet();
   const deletePost = useDeletePost();
+  const currentUser = useAuthStore(state => state.user);
+  
+  // 작성자 ID와 현재 사용자 ID 일치 여부 확인
+  const isAuthor = post.userId === currentUser?.id;
 
   const handlePressOption = () => {
     const options = ["삭제", "수정", "취소"];
@@ -79,17 +85,20 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
           createdAt={post.createdAt}
           onPress={() => {}}
           option={
-            <Pressable
-              onPress={() => {
-                handlePressOption();
-              }}
-            >
-              <Ionicons
-                name="ellipsis-horizontal"
-                size={20}
-                color={colors.GRAY_500}
-              />
-            </Pressable>
+            // 작성자만 옵션 버튼 표시
+            isAuthor ? (
+              <Pressable
+                onPress={() => {
+                  handlePressOption();
+                }}
+              >
+                <Ionicons
+                  name="ellipsis-horizontal"
+                  size={20}
+                  color={colors.GRAY_500}
+                />
+              </Pressable>
+            ) : null
           }
         />
         {/* 피드 제목 */}
@@ -116,33 +125,33 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
       </View>
 
       {/* 메뉴 ******************************/}
-      <View style={styles.menuContainer}>
-        <Pressable style={styles.menu}>
+      {/* <View style={styles.menuContainer}> */}
+        {/* <Pressable style={styles.menu}> */}
           {/* 좋아요 */}
-          <Ionicons
-            name={isLiked ? "heart" : "heart-outline"}
-            size={16}
-            color={isLiked ? colors.RED_500 : colors.GRAY_500}
-          />
-          <Text style={isLiked ? styles.activeMenuText : styles.menuText}>
+          {/* <Ionicons */}
+            {/* name={isLiked ? "heart" : "heart-outline"} */}
+            {/* size={16} */}
+            {/* color={isLiked ? colors.RED_500 : colors.GRAY_500} */}
+          {/* /> */}
+          {/* <Text style={isLiked ? styles.activeMenuText : styles.menuText}> */}
             {/* {post.likes || 0} */}
-          </Text>
-        </Pressable>
-        <Pressable style={styles.menu}>
+          {/* </Text> */}
+        {/* </Pressable> */}
+        {/* <Pressable style={styles.menu}> */}
           {/* 댓글 */}
-          <Ionicons name="chatbox-outline" size={16} color={colors.GRAY_500} />
-          <Text style={styles.menuText}>
-            {post.comment_count || post.comment_count || 0}
-          </Text>
-        </Pressable>
-        <Pressable style={styles.menu}>
+          {/* <Ionicons name="chatbox-outline" size={16} color={colors.GRAY_500} /> */}
+          {/* <Text style={styles.menuText}> */}
+            {/* {post.comment_count || post.comment_count || 0} */}
+          {/* </Text> */}
+        {/* </Pressable> */}
+        {/* <Pressable style={styles.menu}> */}
           {/* 조회수 */}
-          <Ionicons name="eye-outline" size={16} color={colors.GRAY_500} />
-          <Text style={styles.menuText}>
-            {post.viewCount || post.viewCount || 0}
-          </Text>
-        </Pressable>
-      </View>
+          {/* <Ionicons name="eye-outline" size={16} color={colors.GRAY_500} /> */}
+          {/* <Text style={styles.menuText}> */}
+            {/* {post.viewCount || post.viewCount || 0} */}
+          {/* </Text> */}
+        {/* </Pressable> */}
+      {/* </View> */}
     </ContainerComponent>
   );
 }

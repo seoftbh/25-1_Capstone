@@ -24,6 +24,8 @@ import { useNavigation, useSegments } from "expo-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/api/queryClient";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import React from "react";
+import { initializeAuth } from "@/api/auth";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -62,6 +64,17 @@ export default function RootLayout() {
   const [userName, setUserName] = useState<string | null>(null);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const segments = useSegments();
+
+  // 앱 시작 시 인증 상태 초기화
+  useEffect(() => {
+    const setupAuth = async () => {
+      console.log("Initializing authentication...");
+      await initializeAuth();
+      console.log("Authentication initialized!");
+    };
+
+    setupAuth();
+  }, []);
 
   // 로그인 상태 확인 및 토스트 표시 로직
   useEffect(() => {
