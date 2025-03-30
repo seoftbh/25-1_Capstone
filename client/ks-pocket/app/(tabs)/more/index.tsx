@@ -113,7 +113,7 @@ export default function MoreScreen() {
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>부서:</Text>
+            <Text style={styles.infoLabel}>학과:</Text>
             <Text style={styles.infoValue}>{profile?.dept || getUserMetadata().dept}</Text>
           </View>
           

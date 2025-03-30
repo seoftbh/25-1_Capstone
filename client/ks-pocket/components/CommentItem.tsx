@@ -124,10 +124,10 @@ function CommentItem({ comment }: CommentItemProps) {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 8,
-    marginHorizontal: 16,
+    marginTop: 8,
+    marginHorizontal: 8,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 16,
     backgroundColor: colors.WHITE,
     shadowColor: "#000",
     shadowOffset: {
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-    elevation: 2,
+    elevation: 1,
   },
   contentContainer: {
     marginTop: 8,

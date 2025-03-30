@@ -188,7 +188,7 @@ export default function PostDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.GRAY_100,
   },
   loadingContainer: {
     flex: 1,
@@ -205,18 +205,18 @@ const styles = StyleSheet.create({
     color: colors.RED_500,
   },
   scrollViewContainer: {
-    backgroundColor: colors.GRAY_200,
-    paddingBottom: 80, // 입력창 높이만큼 여백 추가
+    // backgroundColor: colors.GRAY_200,
+    // paddingBottom: 80, // 입력창 높이만큼 여백 추가
   },
   commentCount: {
     fontSize: 16,
     color: colors.GRAY_500,
     padding: 16,
     backgroundColor: colors.WHITE,
-    marginTop: 12,
+    // marginTop: 12,
   },
   commentsList: {
-    paddingVertical: 8,
+    // paddingVertical: 8,
   },
   commentsLoading: {
     padding: 16,

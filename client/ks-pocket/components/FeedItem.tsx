@@ -24,6 +24,12 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
   // 작성자 ID와 현재 사용자 ID 일치 여부 확인
   const isAuthor = post.userId === currentUser?.id;
 
+  // isDetail 속성에 따라 다른 스타일을 적용
+const containerStyle = [
+  styles.container,
+  isDetail ? styles.detailContainer : null
+];
+
   const handlePressOption = () => {
     const options = ["삭제", "수정", "취소"];
     const cancelButtonIndex = 2;
@@ -74,7 +80,7 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
   const ContainerComponent = isDetail ? View : Pressable; // 상세 페이지가 아닐 때만 Pressable로 설정
 
   return (
-    <ContainerComponent style={styles.container} onPress={handlePressFeed}>
+    <ContainerComponent style={isDetail? styles.detailContainer : styles.container} onPress={handlePressFeed}>
       {/* 피드 내용 **************************/}
       <View style={styles.contentContainer}>
         {/* 프로필 */}
@@ -164,6 +170,14 @@ const styles = StyleSheet.create({
     // borderWidth: StyleSheet.hairlineWidth,
     elevation: 1,
     borderRadius: 12,
+  },
+  detailContainer: {
+    backgroundColor: colors.WHITE,
+    borderColor: colors.GRAY_300,
+    // borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
+    // elevation: 1,
+    // borderRadius: 12,
   },
   contentContainer: {
     // padding: 16,

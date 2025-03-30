@@ -96,11 +96,11 @@ export default function FeedList() {
 
 const styles = StyleSheet.create({
   listContainer: {
-    padding: 16,
+    padding: 8,
     paddingBottom: 80, // 하단 버튼을 가리지 않도록 패딩 추가
   },
   separator: {
-    height: 16,
+    height: 8,
   },
   centerContainer: {
     flex: 1,
