@@ -7,3 +7,4 @@
 | 1    | [개발 주제 선정 및 기획서 작성](./md/week1.md) | [PDF](./md/assets/w01.pdf)                                                        |
 | 2    | [시스템 설계 및 UI/UX 디자인](./md/week2.md)   | [Figma](https://www.figma.com/design/CWtoHKFpdZyaD5XMPkcIpj/25-1_Capstone-Design) |
 | 3    | [개발 환경 구축 및 DB 연동](./md/week3.md)     |                                                                                   |
+| 4    | [UI 개선 및 게시판 기능 확장](./md/week4.md)     |                                                                                   |
