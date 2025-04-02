@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-// app.json의 내용을 가져와서 확장합니다
+// app.json의 내용을 가져와서 확장
 const appJson = require('./app.json');
 
 // 환경 변수를 extra 필드에 추가
@@ -12,6 +12,7 @@ module.exports = {
     extra: {
       ...appJson.expo.extra,
       openaiApiKey: process.env.OPENAI_API_KEY,
+      openaiAssistantId: process.env.OPENAI_ASSISTANT_ID
     }
   }
 };

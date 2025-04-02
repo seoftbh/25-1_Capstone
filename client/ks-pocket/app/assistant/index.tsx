@@ -1,6 +1,6 @@
 /**
 |--------------------------------------------------
-| Assistant Screen
+| Assistant Screen - OpenAI Assistant API 활용
 |--------------------------------------------------
 */
 
@@ -33,6 +33,10 @@ type MessageType = {
 
 export default function AssistantScreen() {
   const OPENAI_API_KEY = Constants.expoConfig?.extra?.openaiApiKey;
+  
+  // Assistant ID (대시보드에서 생성한 Assistant ID로 변경)
+  const ASSISTANT_ID = Constants.expoConfig?.extra?.openaiAssistantId || 'asst_your_assistant_id';
+  
   // 상태 관리
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<MessageType[]>([
@@ -44,13 +48,49 @@ export default function AssistantScreen() {
     }
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   
   // 플랫리스트 참조
   const flatListRef = useRef<FlatList<MessageType>>(null);
   
+  // 컴포넌트 마운트 시 새 스레드 생성
+  useEffect(() => {
+    createThread();
+  }, []);
+  
+  // 새 스레드 생성 함수
+  const createThread = async () => {
+    if (!OPENAI_API_KEY) {
+      console.error('OpenAI API 키가 설정되지 않았습니다.');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/threads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+        },
+        body: JSON.stringify({})
+      });
+
+      const data = await response.json();
+      if (data.id) {
+        console.log('새 스레드가 생성되었습니다:', data.id);
+        setThreadId(data.id);
+      } else {
+        console.error('스레드 생성 실패:', data);
+      }
+    } catch (error) {
+      console.error('스레드 생성 중 오류:', error);
+    }
+  };
+  
   // 메시지 전송 함수
   const handleSend = async () => {
-    if (message.trim() === '') return;
+    if (message.trim() === '' || !threadId) return;
     
     // 사용자 메시지 추가
     const userMessage: MessageType = {
@@ -61,24 +101,27 @@ export default function AssistantScreen() {
     };
     
     setMessages(prevMessages => [...prevMessages, userMessage]);
+    const sentMessage = message;
     setMessage('');
     setIsLoading(true);
     
     try {
-      // OpenAI API 호출
-      const response = await callOpenAI(message);
+      // Assistant API를 통해 메시지 전송 및 응답 받기
+      const response = await sendMessageToAssistant(sentMessage);
       
-      // 응답 메시지 추가
-      const assistantMessage: MessageType = {
-        id: (Date.now() + 1).toString(),
-        content: response,
-        sender: 'assistant',
-        timestamp: new Date()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, assistantMessage]);
+      if (response) {
+        // 응답 메시지 추가
+        const assistantMessage: MessageType = {
+          id: (Date.now() + 1).toString(),
+          content: response,
+          sender: 'assistant',
+          timestamp: new Date()
+        };
+        
+        setMessages(prevMessages => [...prevMessages, assistantMessage]);
+      }
     } catch (error) {
-      console.error('OpenAI API 호출 중 오류:', error);
+      console.error('Assistant API 호출 중 오류:', error);
       
       // 오류 메시지 추가
       const errorMessage: MessageType = {
@@ -94,43 +137,133 @@ export default function AssistantScreen() {
     }
   };
   
-  // OpenAI API 호출 함수
-  const callOpenAI = async (prompt: string): Promise<string> => {
-    // 환경 변수에서 API 키 로드
-    if (!OPENAI_API_KEY) {
-      console.error('OpenAI API 키가 설정되지 않았습니다.');
-      return '설정 오류: API 키가 없습니다. 관리자에게 문의하세요.';
+  // Assistant API 호출 함수
+  const sendMessageToAssistant = async (userMessage: string): Promise<string> => {
+    if (!OPENAI_API_KEY || !threadId) {
+      console.error('API 키 또는 스레드 ID가 없습니다.');
+      return '설정 오류: API 키 또는 스레드 ID가 없습니다.';
     }
     
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // 1. 스레드에 메시지 추가
+      const messageResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: '당신은 도움이 되는 AI 어시스턴트입니다.' },
-            { role: 'user', content: prompt }
-          ],
-          max_tokens: 500
+          role: 'user',
+          content: userMessage
         })
       });
       
-      const data = await response.json();
-      
-      if (data.choices && data.choices.length > 0) {
-        return data.choices[0].message.content;
-      } else {
-        console.error('API 응답 오류:', data);
-        return '응답을 처리하는 중 오류가 발생했습니다.';
+      const messageData = await messageResponse.json();
+      if (!messageData.id) {
+        console.error('메시지 추가 실패:', messageData);
+        return '메시지 전송 중 오류가 발생했습니다.';
       }
+      
+      // 2. 런 생성 (Assistant가 응답하도록 요청)
+      const runResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+        },
+        body: JSON.stringify({
+          assistant_id: ASSISTANT_ID
+        })
+      });
+      
+      const runData = await runResponse.json();
+      if (!runData.id) {
+        console.error('런 생성 실패:', runData);
+        return '응답 생성 요청 중 오류가 발생했습니다.';
+      }
+      
+      // 3. 런 상태 확인 (완료될 때까지 폴링)
+      const runResult = await checkRunCompletion(threadId, runData.id);
+      if (!runResult.success) {
+        return '응답 생성 중 문제가 발생했습니다.';
+      }
+      
+      // 4. 최신 메시지 가져오기
+      const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages?limit=1`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+        }
+      });
+      
+      const messagesData = await messagesResponse.json();
+      if (messagesData.data && messagesData.data.length > 0) {
+        // API 응답에서 첫 번째 메시지(가장 최신)를 가져옴
+        const latestMessage = messagesData.data[0];
+        // Assistant 응답인지 확인하고 콘텐츠 반환
+        if (latestMessage.role === 'assistant') {
+          // v2 API 응답 형식에 맞게 콘텐츠 추출 로직 수정
+          try {
+            // content는 배열 형태이며 각 항목은 type 속성을 가짐
+            const textContent = latestMessage.content.find((item: { type: string; }) => item.type === 'text');
+            if (textContent && textContent.text && textContent.text.value) {
+              return textContent.text.value;
+            }
+          } catch (error) {
+            console.error('메시지 파싱 오류:', error);
+          }
+        }
+      }
+      
+      return '응답을 가져올 수 없습니다.';
+      
     } catch (error) {
-      console.error('API 호출 오류:', error);
+      console.error('Assistant API 호출 오류:', error);
       throw error;
     }
+  };
+  
+  // 런 완료 여부 확인 함수 (폴링 사용)
+  const checkRunCompletion = async (threadId: string, runId: string): Promise<{success: boolean}> => {
+    let attempts = 0;
+    const maxAttempts = 30; // 최대 30회 시도 (약 30초)
+    
+    while (attempts < maxAttempts) {
+      try {
+        const response = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'completed') {
+          return { success: true };
+        }
+        
+        if (data.status === 'failed' || data.status === 'cancelled') {
+          console.error('런 실패:', data);
+          return { success: false };
+        }
+        
+        // 아직 진행 중이라면 1초 대기 후 다시 확인
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        attempts++;
+        
+      } catch (error) {
+        console.error('런 상태 확인 중 오류:', error);
+        return { success: false };
+      }
+    }
+    
+    console.error('런 완료 시간 초과');
+    return { success: false };
   };
   
   // 새 메시지가 추가될 때마다 스크롤을 아래로 이동
@@ -142,7 +275,7 @@ export default function AssistantScreen() {
     }
   }, [messages]);
   
-  // 메시지 렌더링 함수
+  // 메시지 렌더링 함수 (기존 코드 유지)
   const renderMessage = ({ item }: { item: MessageType }) => (
     <View style={[
       styles.messageContainer,
@@ -163,6 +296,7 @@ export default function AssistantScreen() {
     </View>
   );
   
+  // UI 렌더링 (기존 UI 유지)
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -202,15 +336,15 @@ export default function AssistantScreen() {
           <TouchableOpacity
             style={[
               styles.sendButton,
-              message.trim() === '' ? styles.sendButtonDisabled : {}
+              message.trim() === '' || !threadId || isLoading ? styles.sendButtonDisabled : {}
             ]}
             onPress={handleSend}
-            disabled={message.trim() === '' || isLoading}
+            disabled={message.trim() === '' || !threadId || isLoading}
           >
             <Ionicons 
               name="send" 
               size={24} 
-              color={message.trim() === '' ? "#AAA" : colors.WHITE || "#FFF"} 
+              color={message.trim() === '' || !threadId || isLoading ? "#AAA" : colors.WHITE || "#FFF"} 
             />
           </TouchableOpacity>
         </View>
@@ -219,7 +353,9 @@ export default function AssistantScreen() {
   );
 }
 
+// 스타일은 기존과 동일하게 유지
 const styles = StyleSheet.create({
+  // 기존 스타일 코드는 그대로 유지
   safeArea: {
     flex: 1,
     backgroundColor: colors.WHITE || '#F5FCFF',
