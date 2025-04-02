@@ -191,6 +191,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="auth" options={{ headerShown: false }} />
             <Stack.Screen name="post" options={{ headerShown: false }} />
+            <Stack.Screen name="assistant" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
           <Toast config={toastConfig} />

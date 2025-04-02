@@ -6,6 +6,7 @@ import {
   TextInput,
   TextInputProps,
   View,
+  TouchableOpacity,
 } from "react-native";
 
 interface InputFieldProps extends TextInputProps {
@@ -13,6 +14,7 @@ interface InputFieldProps extends TextInputProps {
   variant?: "default" | "filled" | "outlined";
   error?: string;
   rightChild?: ReactNode;
+  onPress?: () => void;
 }
 
 function InputField(
@@ -21,11 +23,13 @@ function InputField(
     variant = "filled",
     error = "",
     rightChild = null,
+    onPress,
     ...props
   }: InputFieldProps,
   ref: ForwardedRef<TextInput>
 ) {
-  return (
+  // 입력 필드의 내용물
+  const inputContent = (
     <View>
       {/* label이 있을 경우에만 Text 컴포넌트를 렌더링 */}
       {label && <Text style={styles.label}>{label}</Text>}
@@ -44,6 +48,7 @@ function InputField(
           autoCapitalize="none"
           spellCheck={false}
           autoCorrect={false}
+          pointerEvents={onPress ? "none" : "auto"} // onPress가 있으면 입력 필드 터치를 비활성화
           {...props}
         />
         {/** 오른쪽에 추가할 컴포넌트 */}
@@ -53,6 +58,18 @@ function InputField(
       {Boolean(error) && <Text style={styles.error}>{error}</Text>}
     </View>
   );
+
+  // onPress 속성이 제공된 경우, TouchableOpacity로 감싸서 반환
+  if (onPress) {
+    return (
+      <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+        {inputContent}
+      </TouchableOpacity>
+    );
+  }
+
+  // onPress가 없는 경우, 일반 입력 필드로 반환
+  return inputContent;
 }
 
 const styles = StyleSheet.create({

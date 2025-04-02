@@ -27,7 +27,15 @@ export default function HomeScreen() {
             router.push("/bus");
           }}
         />
-        <InputField label="이메일" />
+        <Pressable onPress={() => router.push("/assistant")}>
+          <Text>Go to Assistant</Text>
+          <InputField 
+  label="이메일" 
+  placeholder="터치하면 어시스턴트 화면으로 이동합니다"
+  onPress={() => router.push("/assistant")}
+  editable={false} // 터치만 가능하게 입력은 비활성화
+/>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
