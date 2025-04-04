@@ -1,41 +1,48 @@
-import { View, Text, SafeAreaView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
-import React, { useState, useRef, useEffect } from 'react'
-import { WebView, WebViewMessageEvent } from 'react-native-webview';
-import Constants from 'expo-constants';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
+import Constants from "expo-constants";
 
 export default function MapScreen() {
   const [isOutOfBounds, setIsOutOfBounds] = useState(false);
   const webViewRef = useRef<WebView>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
+
   const location = {
     latitude: 35.1395,
-    longitude: 129.0986
+    longitude: 129.0986,
   };
-  
+
   const bounds = {
-    sw: { lat: 35.1365, lng: 129.0940 }, // 남서쪽 좌표
-    ne: { lat: 35.1450, lng: 129.1020 }  // 북동쪽 좌표
+    sw: { lat: 35.1365, lng: 129.094 }, // 남서쪽 좌표
+    ne: { lat: 35.145, lng: 129.102 }, // 북동쪽 좌표
   };
-  
-  const kakaoMapApiKey = Constants.expoConfig?.extra?.kakaoMapApiKey || '';
-  
+
+  const kakaoMapApiKey = Constants.expoConfig?.extra?.kakaoMapApiKey || "";
+
   // WebView와 네이티브 앱 간의 통신을 위한 핸들러
   const onMessage = (event: WebViewMessageEvent) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      if (data.type === 'boundsStatus') {
+      if (data.type === "boundsStatus") {
         setIsOutOfBounds(data.isOutOfBounds);
-      } else if (data.type === 'mapLoaded') {
+      } else if (data.type === "mapLoaded") {
         setMapLoaded(true);
-      } else if (data.type === 'error') {
-        console.error('맵 에러:', data.message);
+      } else if (data.type === "error") {
+        console.error("맵 에러:", data.message);
       }
     } catch (error) {
-      console.error('메시지 파싱 오류:', error);
+      console.error("메시지 파싱 오류:", error);
     }
   };
-  
+
   // 기본 위치로 돌아가는 함수
   const goToDefaultLocation = () => {
     if (webViewRef.current && mapLoaded) {
@@ -55,7 +62,7 @@ export default function MapScreen() {
       `);
     }
   };
-  
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -109,7 +116,7 @@ export default function MapScreen() {
             var marker = new kakao.maps.Marker({
               position: markerPosition
             });
-            marker.setMap(map);
+            // marker.setMap(map);
             
             // 제한 영역 표시
             var rectangle = new kakao.maps.Rectangle({
@@ -120,7 +127,7 @@ export default function MapScreen() {
               fillColor: '#FF0000',
               fillOpacity: 0.1
             });
-            rectangle.setMap(map);
+            // rectangle.setMap(map);
             
             // 초기 상태 확인 (약간의 딜레이를 주어 지도가 완전히 로드된 후 체크)
             setTimeout(checkBounds, 1000);
@@ -185,15 +192,15 @@ export default function MapScreen() {
         webViewRef.current.reload();
       }
     }, 5000);
-    
+
     return () => clearTimeout(timeoutId);
   }, [mapLoaded]);
 
   return (
     <SafeAreaView style={styles.container}>
       {isOutOfBounds && (
-        <TouchableOpacity 
-          style={styles.returnButton} 
+        <TouchableOpacity
+          style={styles.returnButton}
           onPress={goToDefaultLocation}
           activeOpacity={0.8}
         >
@@ -202,7 +209,7 @@ export default function MapScreen() {
       )}
       <WebView
         ref={webViewRef}
-        originWhitelist={['*']}
+        originWhitelist={["*"]}
         source={{ html: htmlContent }}
         style={styles.webview}
         javaScriptEnabled={true}
@@ -210,29 +217,29 @@ export default function MapScreen() {
         onMessage={onMessage}
         onError={(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
-          console.error('WebView 오류:', nativeEvent);
+          console.error("WebView 오류:", nativeEvent);
         }}
       />
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    position: 'relative'
+    backgroundColor: "#fff",
+    position: "relative",
   },
   webview: {
     flex: 1,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   },
   returnButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 15,
-    alignSelf: 'center',
-    backgroundColor: '#3366FF',
+    alignSelf: "center",
+    backgroundColor: "#3366FF",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 20,
@@ -247,8 +254,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
     fontSize: 14,
-  }
+  },
 });
