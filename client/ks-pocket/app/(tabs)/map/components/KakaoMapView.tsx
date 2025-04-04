@@ -108,6 +108,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           var markerObjects = {};
           var overlays = {};
           var labelOverlays = {}; // 마커에 표시할 라벨 오버레이
+          var activeMarkerId = null; // 현재 활성화된 마커 ID 저장
           
           // 카테고리별 마커 관리
           var categoryMarkers = {
@@ -272,11 +273,6 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
                   marker: markerData
                 }));
                 
-                // 해당 마커의 라벨 숨기기 (상세 정보와 겹치지 않도록)
-                if (labelOverlays[markerData.id]) {
-                  labelOverlays[markerData.id].setMap(null);
-                }
-                
                 // 커스텀 오버레이 표시 또는 숨기기
                 toggleOverlay(markerData.id);
               });
@@ -330,21 +326,9 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             if (overlays[markerId]) {
               var overlayInfo = overlays[markerId];
               
-              // 현재 표시 중인 모든 오버레이 닫기
-              for (var id in overlays) {
-                if (overlays[id].visible) {
-                  overlays[id].overlay.setMap(null);
-                  overlays[id].visible = false;
-                  
-                  // 라벨 다시 표시
-                  if (labelOverlays[id]) {
-                    labelOverlays[id].setMap(map);
-                  }
-                }
-              }
-              
-              // 선택한 오버레이 표시/숨기기 토글
-              if (overlayInfo.visible) {
+              // 같은 마커를 다시 클릭한 경우
+              if (activeMarkerId === markerId && overlayInfo.visible) {
+                // 현재 표시 중인 오버레이 닫기
                 overlayInfo.overlay.setMap(null);
                 overlayInfo.visible = false;
                 
@@ -352,15 +336,37 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
                 if (labelOverlays[markerId]) {
                   labelOverlays[markerId].setMap(map);
                 }
-              } else {
-                overlayInfo.overlay.setMap(map);
-                overlayInfo.visible = true;
                 
-                // 라벨 숨기기
-                if (labelOverlays[markerId]) {
-                  labelOverlays[markerId].setMap(null);
+                // 활성화된 마커 ID 초기화
+                activeMarkerId = null;
+                return;
+              }
+              
+              // 다른 마커의 상세 정보가 열려있으면 닫기
+              if (activeMarkerId && activeMarkerId !== markerId) {
+                var activeOverlayInfo = overlays[activeMarkerId];
+                if (activeOverlayInfo && activeOverlayInfo.visible) {
+                  activeOverlayInfo.overlay.setMap(null);
+                  activeOverlayInfo.visible = false;
+                  
+                  // 이전에 선택된 마커의 라벨 다시 표시
+                  if (labelOverlays[activeMarkerId]) {
+                    labelOverlays[activeMarkerId].setMap(map);
+                  }
                 }
               }
+              
+              // 선택한 마커의 상세정보 표시
+              overlayInfo.overlay.setMap(map);
+              overlayInfo.visible = true;
+              
+              // 라벨 숨기기
+              if (labelOverlays[markerId]) {
+                labelOverlays[markerId].setMap(null);
+              }
+              
+              // 활성화된 마커 ID 업데이트
+              activeMarkerId = markerId;
             }
           }
           
@@ -401,6 +407,11 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
                     if (overlays[markerData.id] && overlays[markerData.id].visible) {
                       overlays[markerData.id].overlay.setMap(null);
                       overlays[markerData.id].visible = false;
+                      
+                      // 활성화된 마커가 현재 카테고리에 속한 경우 초기화
+                      if (activeMarkerId === markerData.id) {
+                        activeMarkerId = null;
+                      }
                     }
                   }
                 });

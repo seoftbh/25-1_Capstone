@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -16,13 +16,24 @@ type CategorySelectorProps = {
   categories: Category[];
   activeCategories: string[];
   onToggleCategory: (categoryId: string) => void;
+  onInitCategories?: (categoryIds: string[]) => void; // 초기 카테고리 설정을 위한 prop 추가
 };
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({
   categories,
   activeCategories,
   onToggleCategory,
+  onInitCategories,
 }) => {
+  // 컴포넌트 마운트 시 모든 카테고리 활성화
+  useEffect(() => {
+    // 모든 카테고리가 비활성화된 상태일 때만 초기화 함수 호출
+    if (activeCategories.length === 0 && onInitCategories) {
+      const allCategoryIds = categories.map(category => category.id);
+      onInitCategories(allCategoryIds);
+    }
+  }, [categories, activeCategories.length, onInitCategories]);
+
   return (
     <View style={styles.categoriesContainer}>
       <ScrollView

@@ -13,9 +13,20 @@ import Constants from "expo-constants";
 import CategorySelector from "./components/CategorySelector";
 import ReturnToLocationButton from "./components/ReturnToLocationButton";
 import KakaoMapView from "./components/KakaoMapView";
-import { MarkerData, CATEGORIES, MARKERS } from "./data/mapData";
+import { MarkerData, MARKERS } from "./data/mapData";
 
 export default function MapScreen() {
+  const categories = [
+    { id: "campus", name: "캠퍼스" },
+    { id: "convenience", name: "편의시설" },
+    { id: "atm", name: "ATM" },
+    { id: "parking", name: "주차장" },
+    { id: "restaurant", name: "식당" },
+    { id: "admin", name: "행정" },
+    { id: "restarea", name: "휴게공간" },
+    { id: "sports", name: "체육시설" },
+  ];
+
   const [isOutOfBounds, setIsOutOfBounds] = useState(false);
   const webViewRef = useRef<WebView>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -34,7 +45,7 @@ export default function MapScreen() {
   const kakaoMapApiKey = Constants.expoConfig?.extra?.kakaoMapApiKey || "";
 
   // 카테고리 토글 처리 함수
-  const toggleCategory = (categoryId: string) => {
+  const handleToggleCategory = (categoryId: string) => {
     setActiveCategories((prev) => {
       if (prev.includes(categoryId)) {
         // 이미 활성화된 카테고리라면 제거
@@ -72,6 +83,11 @@ export default function MapScreen() {
         return result;
       }
     });
+  };
+
+  // 초기 카테고리 설정 함수
+  const handleInitCategories = (categoryIds: string[]) => {
+    setActiveCategories(categoryIds);
   };
 
   // WebView와 네이티브 앱 간의 통신을 위한 핸들러
@@ -129,9 +145,10 @@ export default function MapScreen() {
     <SafeAreaView style={styles.container}>
       {/* 카테고리 버튼 영역 */}
       <CategorySelector
-        categories={CATEGORIES}
+        categories={categories}
         activeCategories={activeCategories}
-        onToggleCategory={toggleCategory}
+        onToggleCategory={handleToggleCategory}
+        onInitCategories={handleInitCategories}
       />
 
       {/* 경계 이탈 시 돌아가기 버튼 */}
