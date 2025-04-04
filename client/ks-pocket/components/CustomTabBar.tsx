@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     height: 68,
-    backgroundColor: "white",
+    backgroundColor: colors.BROWN_50,
     borderTopWidth: 0,
     paddingTop: 6,
     justifyContent: "space-around",

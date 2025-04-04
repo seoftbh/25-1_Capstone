@@ -12,6 +12,7 @@ const colors = {
   BLUE_100: "#E0F2FE",
   BLUE_500: "#005BAA",
 
+  BROWN_50: "#fffcf4",
   BROWN_100: "#F5F0EB",
   BROWN_200: "#E8E1D9",
   BROWN_500: "#68635E",

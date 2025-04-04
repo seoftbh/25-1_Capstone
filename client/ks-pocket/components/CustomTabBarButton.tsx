@@ -15,7 +15,7 @@ export default function CustomTabBarButton({ onPress }: CustomTabBarButtonProps)
     >
       <View style={styles.button}>
         <Image
-          source={require("../assets/images/sparkles_3d.png")}
+          source={require("../assets/images/center-icon.png")}
           style={styles.image}
           resizeMode="contain"
         />
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   image: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
   },
 });
