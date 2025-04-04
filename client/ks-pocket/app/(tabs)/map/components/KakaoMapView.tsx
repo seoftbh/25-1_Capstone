@@ -31,57 +31,68 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
           #map { width: 100%; height: 100%; }
           .customOverlay {
-            padding: 10px;
+            padding: 12px;
             background: white;
-            border-radius: 5px;
+            border-radius: 6px;
             border: 1px solid #ccc;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-width: 250px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            max-width: 280px;
+            margin-bottom: 10px;
           }
           .customOverlay .title {
             font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 15px;
+            margin-bottom: 6px;
           }
           .customOverlay .desc {
-            font-size: 12px;
+            font-size: 13px;
           }
           .markerLabel {
-            padding: 3px 8px;
-            border-radius: 12px;
+            padding: 4px 10px;
+            border-radius: 14px;
             color: white;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             text-align: center;
             white-space: nowrap;
-            transform: translateY(-10px);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
+            line-height: 1.2;
           }
           
           /* 카테고리별 색상 */
-          .campus { background: rgba(41, 128, 185, 0.85); }
-          .convenience { background: rgba(39, 174, 96, 0.85); }
-          .atm { background: rgba(142, 68, 173, 0.85); }
-          .parking { background: rgba(230, 126, 34, 0.85); }
-          .restaurant { background: rgba(231, 76, 60, 0.85); }
-          .admin { background: rgba(52, 73, 94, 0.85); }
-          .restarea { background: rgba(127, 140, 141, 0.85); }
+          .campus { background: rgba(41, 128, 185, 0.9); }
+          .convenience { background: rgba(39, 174, 96, 0.9); }
+          .atm { background: rgba(142, 68, 173, 0.9); }
+          .parking { background: rgba(230, 126, 34, 0.9); }
+          .restaurant { background: rgba(231, 76, 60, 0.9); }
+          .admin { background: rgba(52, 73, 94, 0.9); }
+          .restarea { background: rgba(127, 140, 141, 0.9); }
 
           /* 커스텀 SVG 마커 스타일 */
           .svg-container {
             position: relative;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 45px;
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .svg-marker {
+            position: absolute;
+            width: 40px;
+            height: 45px;
+            top: 0;
+            left: 0;
           }
           .svg-icon {
             position: absolute;
-            top: 11px; 
-            left: 8px;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
+            margin-bottom: 6px; /* 아이콘을 위쪽으로 약간 이동 */
             pointer-events: none; /* 아이콘 위에서도 마커 클릭이 가능하도록 함 */
           }
         </style>
@@ -113,37 +124,37 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             campus: {
               color: '#2980b9',
               icon: 'fa-university',
-              size: new kakao.maps.Size(32, 37)
+              size: new kakao.maps.Size(40, 46)
             },
             convenience: {
               color: '#27ae60',
               icon: 'fa-store',
-              size: new kakao.maps.Size(28, 33)
+              size: new kakao.maps.Size(38, 44)
             },
             atm: {
               color: '#8e44ad',
               icon: 'fa-money-bill-alt',
-              size: new kakao.maps.Size(28, 33)
+              size: new kakao.maps.Size(38, 44)
             },
             parking: {
               color: '#e67e22',
               icon: 'fa-parking',
-              size: new kakao.maps.Size(28, 33)
+              size: new kakao.maps.Size(38, 44)
             },
             restaurant: {
               color: '#e74c3c',
               icon: 'fa-utensils',
-              size: new kakao.maps.Size(28, 33)
+              size: new kakao.maps.Size(38, 44)
             },
             admin: {
               color: '#34495e',
               icon: 'fa-building',
-              size: new kakao.maps.Size(28, 33)
+              size: new kakao.maps.Size(38, 44)
             },
             restarea: {
               color: '#7f8c8d',
               icon: 'fa-coffee',
-              size: new kakao.maps.Size(28, 33)
+              size: new kakao.maps.Size(38, 44)
             }
           };
           
@@ -152,9 +163,10 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             var content = document.createElement('div');
             content.className = 'svg-container';
             
-            // SVG 마커 생성 - 중앙 흰색 원 제거
+            // SVG 마커 생성
             var svgMarker = document.createElement('div');
-            svgMarker.innerHTML = '<svg width="32" height="37" viewBox="0 0 32 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.16344 0 0 7.16344 0 16C0 27.68 16 37 16 37C16 37 32 27.68 32 16C32 7.16344 24.8366 0 16 0Z" fill="' + color + '"/></svg>';
+            svgMarker.className = 'svg-marker';
+            svgMarker.innerHTML = '<svg width="40" height="45" viewBox="0 0 40 45" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 0C8.95429 0 0 8.95429 0 20C0 34.6 20 45 20 45C20 45 40 34.6 40 20C40 8.95429 31.0457 0 20 0Z" fill="' + color + '"/></svg>';
             content.appendChild(svgMarker);
             
             // 아이콘 추가
@@ -228,7 +240,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
               var config = categoryConfig[markerData.category] || {
                 color: '#2c3e50', 
                 icon: 'fa-map-marker-alt',
-                size: new kakao.maps.Size(28, 33)
+                size: new kakao.maps.Size(38, 44)
               };
               
               // 아이콘이 포함된 커스텀 마커 생성
@@ -274,7 +286,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
               var labelOverlay = new kakao.maps.CustomOverlay({
                 content: labelContent,
                 position: markerPosition,
-                yAnchor: 2.5,  // 마커 위에 표시
+                yAnchor: 2.8,  // 마커 위에 표시 (값 증가)
                 zIndex: 1
               });
               
