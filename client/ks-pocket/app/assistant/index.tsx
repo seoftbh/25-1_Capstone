@@ -16,7 +16,8 @@ import {
   Platform,
   ActivityIndicator,
   SafeAreaView,
-  Alert
+  Alert,
+  Keyboard
 } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from "@/constants";
@@ -52,6 +53,7 @@ export default function AssistantScreen() {
   
   // 플랫리스트 참조
   const flatListRef = useRef<FlatList<MessageType>>(null);
+  const inputRef = useRef<TextInput>(null);
   
   // 컴포넌트 마운트 시 새 스레드 생성
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function AssistantScreen() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+          'OpenAI-Beta': 'assistants=v2'
         },
         body: JSON.stringify({})
       });
@@ -92,6 +94,9 @@ export default function AssistantScreen() {
   const handleSend = async () => {
     if (message.trim() === '' || !threadId) return;
     
+    // 키보드 숨기기
+    Keyboard.dismiss();
+    
     // 사용자 메시지 추가
     const userMessage: MessageType = {
       id: Date.now().toString(),
@@ -102,7 +107,7 @@ export default function AssistantScreen() {
     
     setMessages(prevMessages => [...prevMessages, userMessage]);
     const sentMessage = message;
-    setMessage('');
+    setMessage(''); // 메시지 초기화
     setIsLoading(true);
     
     try {
@@ -137,6 +142,17 @@ export default function AssistantScreen() {
     }
   };
   
+  // 엔터키 처리 함수 추가
+  const handleKeyPress = (e: any) => {
+    // 모바일에서는 returnKeyType="send"로 이미 설정되어 있으므로
+    // 이 로직은 주로 웹이나 특정 환경에서 작동
+    if (e.nativeEvent.key === 'Enter' && !e.nativeEvent.shiftKey) {
+      // 기본 행동(줄바꿈) 방지
+      e.preventDefault?.();
+      handleSend();
+    }
+  };
+
   // Assistant API 호출 함수
   const sendMessageToAssistant = async (userMessage: string): Promise<string> => {
     if (!OPENAI_API_KEY || !threadId) {
@@ -151,7 +167,7 @@ export default function AssistantScreen() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+          'OpenAI-Beta': 'assistants=v2'
         },
         body: JSON.stringify({
           role: 'user',
@@ -171,7 +187,7 @@ export default function AssistantScreen() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+          'OpenAI-Beta': 'assistants=v2'
         },
         body: JSON.stringify({
           assistant_id: ASSISTANT_ID
@@ -195,7 +211,7 @@ export default function AssistantScreen() {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+          'OpenAI-Beta': 'assistants=v2'
         }
       });
       
@@ -237,7 +253,7 @@ export default function AssistantScreen() {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${OPENAI_API_KEY}`,
-            'OpenAI-Beta': 'assistants=v2' // v1에서 v2로 변경
+            'OpenAI-Beta': 'assistants=v2'
           }
         });
         
@@ -266,13 +282,37 @@ export default function AssistantScreen() {
     return { success: false };
   };
   
-  // 새 메시지가 추가될 때마다 스크롤을 아래로 이동
+  // 새 메시지가 추가될 때마다 스크롤을 아래로 이동 (완전히 개선된 버전)
   useEffect(() => {
     if (messages.length > 0 && flatListRef.current) {
+      // 안정적인 스크롤을 위한 시간 지연 및 다중 시도
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+        
+        // 추가 스크롤 시도 (레이아웃 계산 지연에 대비)
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: false });
+        }, 50);
+      }, 200);
     }
+  }, [messages]);
+
+  // 키보드 이벤트와 메시지 전송 후 스크롤 조정
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        if (messages.length > 0 && flatListRef.current) {
+          setTimeout(() => {
+            flatListRef.current?.scrollToEnd({ animated: false });
+          }, 100);
+        }
+      }
+    );
+    
+    return () => {
+      keyboardDidShowListener.remove();
+    };
   }, [messages]);
   
   // 메시지 렌더링 함수 (기존 코드 유지)
@@ -287,12 +327,12 @@ export default function AssistantScreen() {
       ]}>
         {item.content}
       </Text>
-      <Text style={[
+      {/* <Text style={[
         styles.timestamp,
         item.sender === 'user' ? styles.userTimestamp : styles.assistantTimestamp
       ]}>
         {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </Text>
+      </Text> */}
     </View>
   );
   
@@ -314,7 +354,10 @@ export default function AssistantScreen() {
           renderItem={renderMessage}
           keyExtractor={item => item.id}
           style={styles.messageList}
-          contentContainerStyle={styles.messageListContent}
+          contentContainerStyle={[styles.messageListContent, { paddingBottom: 20 }]}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          ListFooterComponent={<View style={{ height: 20 }} />}
         />
         
         {isLoading && (
@@ -325,12 +368,21 @@ export default function AssistantScreen() {
         
         <View style={styles.inputContainer}>
           <TextInput
+            ref={inputRef}
             style={styles.input}
             value={message}
             onChangeText={setMessage}
             placeholder="메시지를 입력하세요..."
             placeholderTextColor="#AAA"
-            multiline
+            // 단일 라인 모드 (Enter가 항상 전송으로 작동)
+            multiline={false}
+            enterKeyHint="send"
+            returnKeyType="send"
+            onSubmitEditing={() => {
+              if (message.trim() !== '' && threadId) {
+                handleSend();
+              }
+            }}
             maxLength={500}
           />
           <TouchableOpacity
@@ -344,7 +396,7 @@ export default function AssistantScreen() {
             <Ionicons 
               name="send" 
               size={24} 
-              color={message.trim() === '' || !threadId || isLoading ? "#AAA" : colors.WHITE || "#FFF"} 
+              color={message.trim() === '' || !threadId || isLoading ? colors.GRAY_400 : colors.WHITE} 
             />
           </TouchableOpacity>
         </View>
@@ -358,7 +410,7 @@ const styles = StyleSheet.create({
   // 기존 스타일 코드는 그대로 유지
   safeArea: {
     flex: 1,
-    backgroundColor: colors.WHITE || '#F5FCFF',
+    backgroundColor: colors.WHITE,
   },
   container: {
     flex: 1,
@@ -366,13 +418,13 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.GRAY_T200 || '#E5E5E5',
-    backgroundColor: colors.WHITE || '#FFF',
+    borderBottomColor: colors.GRAY_T200,
+    backgroundColor: colors.WHITE,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.BLACK || '#000',
+    color: colors.BLACK,
     textAlign: 'center',
   },
   messageList: {
@@ -380,13 +432,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   messageListContent: {
-    paddingBottom: 10,
+    paddingBottom: 30,
+    flexGrow: 1,
   },
   messageContainer: {
     maxWidth: '80%',
-    padding: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 16,
-    marginVertical: 6,
+    marginVertical: 8,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -395,22 +449,22 @@ const styles = StyleSheet.create({
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.GOLD_700 || '#007AFF',
+    backgroundColor: colors.GOLD_200,
     borderTopRightRadius: 4,
   },
   assistantMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.GRAY_T100 || '#F0F0F0',
+    backgroundColor: colors.BROWN_100,
     borderTopLeftRadius: 4,
   },
   messageText: {
     fontSize: 16,
   },
   userMessageText: {
-    color: colors.WHITE || '#FFF',
+    color: colors.BROWN_900,
   },
   assistantMessageText: {
-    color: colors.BLACK || '#000',
+    color: colors.BLACK,
   },
   timestamp: {
     fontSize: 10,
@@ -419,16 +473,16 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   userTimestamp: {
-    color: colors.WHITE || '#FFF',
+    color: colors.WHITE,
   },
   assistantTimestamp: {
-    color: colors.GRAY_500 || '#999',
+    color: colors.GRAY_500,
   },
   loadingContainer: {
     position: 'absolute',
     bottom: 80,
     alignSelf: 'center',
-    backgroundColor: colors.WHITE || '#FFF',
+    backgroundColor: colors.WHITE,
     padding: 10,
     borderRadius: 20,
     elevation: 5,
@@ -440,31 +494,31 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     padding: 10,
-    backgroundColor: colors.WHITE || '#FFF',
+    backgroundColor: colors.WHITE,
     borderTopWidth: 1,
-    borderTopColor: colors.GRAY_T200 || '#E5E5E5',
+    borderTopColor: colors.GRAY_T200,
     alignItems: 'center',
   },
   input: {
     flex: 1,
-    backgroundColor: colors.GRAY_T100 || '#F0F0F0',
+    backgroundColor: colors.GRAY_T100,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     maxHeight: 100,
     fontSize: 16,
-    color: colors.BLACK || '#000',
+    color: colors.BLACK,
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.GOLD_700 || '#007AFF',
+    backgroundColor: colors.GOLD_700,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 10,
   },
   sendButtonDisabled: {
-    backgroundColor: colors.GRAY_300 || '#DDD',
+    backgroundColor: colors.GRAY_300,
   },
 });
