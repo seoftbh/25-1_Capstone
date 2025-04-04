@@ -59,10 +59,6 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             display: flex;
             align-items: center;
           }
-          .markerLabel i {
-            margin-right: 4px;
-            font-size: 10px;
-          }
           
           /* 카테고리별 색상 */
           .campus { background: rgba(41, 128, 185, 0.85); }
@@ -72,6 +68,22 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           .restaurant { background: rgba(231, 76, 60, 0.85); }
           .admin { background: rgba(52, 73, 94, 0.85); }
           .restarea { background: rgba(127, 140, 141, 0.85); }
+
+          /* 커스텀 SVG 마커 스타일 */
+          .svg-container {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+          }
+          .svg-icon {
+            position: absolute;
+            top: 11px; 
+            left: 8px;
+            color: white;
+            font-size: 14px;
+            pointer-events: none; /* 아이콘 위에서도 마커 클릭이 가능하도록 함 */
+          }
         </style>
       </head>
       <body>
@@ -135,9 +147,22 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             }
           };
           
-          // SVG 마커 생성 함수
-          function createMarkerImageSVG(color) {
-            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg width="32" height="37" viewBox="0 0 32 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.16344 0 0 7.16344 0 16C0 27.68 16 37 16 37C16 37 32 27.68 32 16C32 7.16344 24.8366 0 16 0Z" fill="' + color + '"/><circle cx="16" cy="16" r="8" fill="white"/></svg>');
+          // SVG 마커 생성 함수 (아이콘 포함)
+          function createMarkerWithIcon(color, iconClass) {
+            var content = document.createElement('div');
+            content.className = 'svg-container';
+            
+            // SVG 마커 생성 - 중앙 흰색 원 제거
+            var svgMarker = document.createElement('div');
+            svgMarker.innerHTML = '<svg width="32" height="37" viewBox="0 0 32 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.16344 0 0 7.16344 0 16C0 27.68 16 37 16 37C16 37 32 27.68 32 16C32 7.16344 24.8366 0 16 0Z" fill="' + color + '"/></svg>';
+            content.appendChild(svgMarker);
+            
+            // 아이콘 추가
+            var icon = document.createElement('i');
+            icon.className = 'fas ' + iconClass + ' svg-icon';
+            content.appendChild(icon);
+            
+            return content;
           }
           
           // 지도 초기화
@@ -206,40 +231,45 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
                 size: new kakao.maps.Size(28, 33)
               };
               
-              // SVG 기반 마커 이미지 생성
-              var markerImage = new kakao.maps.MarkerImage(
-                createMarkerImageSVG(config.color),
-                config.size
-              );
+              // 아이콘이 포함된 커스텀 마커 생성
+              var markerContent = createMarkerWithIcon(config.color, config.icon);
               
-              // 마커 생성
-              var marker = new kakao.maps.Marker({
+              // 커스텀 오버레이 마커 생성
+              var customMarker = new kakao.maps.CustomOverlay({
                 position: markerPosition,
-                image: markerImage,
-                clickable: true
+                content: markerContent,
+                yAnchor: 1.0,
+                zIndex: 1
               });
               
+              // 마커를 지도에 표시
+              customMarker.setMap(map);
+              
               // 마커 클릭 이벤트 등록
-              kakao.maps.event.addListener(marker, 'click', function() {
+              markerContent.addEventListener('click', function() {
                 // 마커 클릭 시 React Native에 이벤트 전달
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                   type: 'markerClicked',
                   marker: markerData
                 }));
                 
+                // 해당 마커의 라벨 숨기기 (상세 정보와 겹치지 않도록)
+                if (labelOverlays[markerData.id]) {
+                  labelOverlays[markerData.id].setMap(null);
+                }
+                
                 // 커스텀 오버레이 표시 또는 숨기기
                 toggleOverlay(markerData.id);
               });
               
               // 마커 정보 저장
-              markerObjects[markerData.id] = marker;
+              markerObjects[markerData.id] = customMarker;
               
               // 카테고리별 마커 그룹에 추가
-              categoryMarkers[markerData.category].push(marker);
+              categoryMarkers[markerData.category].push(customMarker);
               
-              // 마커 위에 shortName 표시하는 라벨 오버레이 생성
+              // 마커 위에 shortName 표시하는 라벨 오버레이 생성 (아이콘 제거)
               var labelContent = '<div class="markerLabel ' + markerData.category + '">' + 
-                                '<i class="fas ' + config.icon + '"></i>' + 
                                 markerData.shortName + '</div>';
               var labelOverlay = new kakao.maps.CustomOverlay({
                 content: labelContent,
@@ -247,6 +277,9 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
                 yAnchor: 2.5,  // 마커 위에 표시
                 zIndex: 1
               });
+              
+              // 라벨 오버레이 표시
+              labelOverlay.setMap(map);
               
               // 라벨 오버레이 저장
               labelOverlays[markerData.id] = labelOverlay;
@@ -261,7 +294,8 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
               var infoOverlay = new kakao.maps.CustomOverlay({
                 content: infoContent,
                 position: markerPosition,
-                yAnchor: 1.5
+                yAnchor: 1.5,
+                zIndex: 2  // 라벨보다 위에 표시
               });
               
               // 오버레이 정보 저장
@@ -276,12 +310,37 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           function toggleOverlay(markerId) {
             if (overlays[markerId]) {
               var overlayInfo = overlays[markerId];
+              
+              // 현재 표시 중인 모든 오버레이 닫기
+              for (var id in overlays) {
+                if (overlays[id].visible) {
+                  overlays[id].overlay.setMap(null);
+                  overlays[id].visible = false;
+                  
+                  // 라벨 다시 표시
+                  if (labelOverlays[id]) {
+                    labelOverlays[id].setMap(map);
+                  }
+                }
+              }
+              
+              // 선택한 오버레이 표시/숨기기 토글
               if (overlayInfo.visible) {
                 overlayInfo.overlay.setMap(null);
                 overlayInfo.visible = false;
+                
+                // 라벨 다시 표시
+                if (labelOverlays[markerId]) {
+                  labelOverlays[markerId].setMap(map);
+                }
               } else {
                 overlayInfo.overlay.setMap(map);
                 overlayInfo.visible = true;
+                
+                // 라벨 숨기기
+                if (labelOverlays[markerId]) {
+                  labelOverlays[markerId].setMap(null);
+                }
               }
             }
           }
@@ -295,7 +354,10 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
                 // 해당 카테고리의 모든 마커에 대한 라벨도 표시
                 markers.forEach(function(markerData) {
                   if (markerData.category === category && labelOverlays[markerData.id]) {
-                    labelOverlays[markerData.id].setMap(map);
+                    // 상세 정보가 표시 중이 아닌 경우에만 라벨 표시
+                    if (!(overlays[markerData.id] && overlays[markerData.id].visible)) {
+                      labelOverlays[markerData.id].setMap(map);
+                    }
                   }
                 });
               });
