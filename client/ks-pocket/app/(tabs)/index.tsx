@@ -15,28 +15,21 @@ import { View, Text, SafeAreaView, Pressable, StyleSheet } from "react-native";
 export default function HomeScreen() {
   return (
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
-      <View>
-        <Text style={commonStyles.h1}>Home Screen</Text>
-        <Text>Hello, Wrold!</Text>
-        <Pressable onPress={() => router.push("/bus")}>
-          <Text>Go to screen 2</Text>
-        </Pressable>
-        <CustomButton
-          label="버튼1"
-          onPress={() => {
-            router.push("/bus");
-          }}
-        />
+      <View style={styles.topSection}>
+        <Text style={commonStyles.h1}>즐거운 오후 되세요!</Text>
+      </View>
+      <View style={styles.middleSection}>
+
         <Pressable onPress={() => router.push("/assistant")}>
-          <Text>Go to Assistant</Text>
+          <Text style={[commonStyles.h3, styles.assistantEntrance]}>궁금한 게 있나요?</Text>
           <InputField 
-  label="이메일" 
-  placeholder="터치하면 어시스턴트 화면으로 이동합니다"
+  placeholder="여기를 눌러 별이에게 물어보세요! ✨"
   onPress={() => router.push("/assistant")}
   editable={false} // 터치만 가능하게 입력은 비활성화
 />
         </Pressable>
       </View>
+      <View style={styles.bottomSection}></View>
     </SafeAreaView>
   );
 }
@@ -44,8 +37,30 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "space-between",
+    // alignItems: "center",
+    backgroundColor: colors.GOLD_100,
+  },
+  topSection: {
+    flex: 2,
     // justifyContent: "center",
     // alignItems: "center",
-    backgroundColor: colors.WHITE,
+  },
+  middleSection: {
+    flex: 1,
+    justifyContent: "center",
+    // alignItems: "center",
+  },
+  bottomSection: {
+    flex: 1,
+    // justifyContent: "center",
+    // alignItems: "center",
+  },
+  assistantEntrance: {
+    marginBottom: 24,
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.BROWN_800,
   },
 })

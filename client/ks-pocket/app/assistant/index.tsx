@@ -380,9 +380,9 @@ export default function AssistantScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <View style={styles.header}>
+        {/* <View style={styles.header}>
           <Text style={styles.headerTitle}>AI 어시스턴트</Text>
-        </View>
+        </View> */}
 
         <FlatList
           ref={flatListRef}
@@ -482,6 +482,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   messageListContent: {
+    padding: 8,
     paddingBottom: 30,
     flexGrow: 1,
   },
@@ -587,7 +588,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     padding: 10,
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.BROWN_50,
     borderTopWidth: 1,
     borderTopColor: colors.GRAY_T200,
     alignItems: "center",
@@ -612,6 +613,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   sendButtonDisabled: {
-    backgroundColor: colors.GRAY_300,
+    backgroundColor: colors.GRAY_T200,
   },
 });
