@@ -12,7 +12,8 @@ module.exports = {
     extra: {
       ...appJson.expo.extra,
       openaiApiKey: process.env.OPENAI_API_KEY,
-      openaiAssistantId: process.env.OPENAI_ASSISTANT_ID
+      openaiAssistantId: process.env.OPENAI_ASSISTANT_ID,
+      kakaoMapApiKey: process.env.KAKAO_MAP_API_KEY,
     }
   }
 };
