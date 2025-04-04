@@ -70,6 +70,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           .restaurant { background: rgba(231, 76, 60, 0.9); }
           .admin { background: rgba(52, 73, 94, 0.9); }
           .restarea { background: rgba(127, 140, 141, 0.9); }
+          .sports { background: rgba(26, 188, 156, 0.9); }
 
           /* 커스텀 SVG 마커 스타일 */
           .svg-container {
@@ -116,7 +117,8 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             parking: [],
             restaurant: [],
             admin: [],
-            restarea: []
+            restarea: [],
+            sports: []
           };
           
           // 카테고리별 설정
@@ -154,6 +156,11 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             restarea: {
               color: '#7f8c8d',
               icon: 'fa-coffee',
+              size: new kakao.maps.Size(38, 44)
+            },
+            sports: {
+              color: '#1abc9c',
+              icon: 'fa-baseball-ball',
               size: new kakao.maps.Size(38, 44)
             }
           };

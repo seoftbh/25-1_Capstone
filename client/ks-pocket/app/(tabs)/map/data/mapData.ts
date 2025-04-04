@@ -20,6 +20,7 @@ export const CATEGORIES = [
   { id: "restaurant", name: "식당" },
   { id: "admin", name: "행정시설" },
   { id: "restarea", name: "휴게실" },
+  { id: "sports", name: "체육시설" },
 ];
 
 // 마커 데이터 (실제 데이터로 대체 필요)
@@ -79,5 +80,13 @@ export const MARKERS: MarkerData[] = [
     shortName: "휴게실1",
     fullName: "중앙 휴게실",
     description: "학생들을 위한 휴식 공간",
+  },
+  {
+    id: "sports1",
+    category: "sports",
+    position: { lat: 35.1385, lng: 129.0978 },
+    shortName: "체육관",
+    fullName: "중앙 체육관",
+    description: "농구, 배드민턴 등 다양한 스포츠 시설",
   },
 ];
