@@ -26,6 +26,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapApiKey}"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <style>
           body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
           #map { width: 100%; height: 100%; }
@@ -35,6 +36,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             border-radius: 5px;
             border: 1px solid #ccc;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-width: 250px;
           }
           .customOverlay .title {
             font-weight: bold;
@@ -45,17 +47,31 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             font-size: 12px;
           }
           .markerLabel {
-            padding: 2px 6px;
-            border-radius: 10px;
-            background: rgba(0, 123, 255, 0.8);
+            padding: 3px 8px;
+            border-radius: 12px;
             color: white;
             font-weight: bold;
             font-size: 12px;
             text-align: center;
             white-space: nowrap;
             transform: translateY(-10px);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
           }
+          .markerLabel i {
+            margin-right: 4px;
+            font-size: 10px;
+          }
+          
+          /* 카테고리별 색상 */
+          .campus { background: rgba(41, 128, 185, 0.85); }
+          .convenience { background: rgba(39, 174, 96, 0.85); }
+          .atm { background: rgba(142, 68, 173, 0.85); }
+          .parking { background: rgba(230, 126, 34, 0.85); }
+          .restaurant { background: rgba(231, 76, 60, 0.85); }
+          .admin { background: rgba(52, 73, 94, 0.85); }
+          .restarea { background: rgba(127, 140, 141, 0.85); }
         </style>
       </head>
       <body>
@@ -80,16 +96,49 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             restarea: []
           };
           
-          // 마커 이미지 정의
-          var markerImages = {
-            campus: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-            convenience: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-            atm: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-            parking: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-            restaurant: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-            admin: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-            restarea: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png'
+          // 카테고리별 설정
+          var categoryConfig = {
+            campus: {
+              color: '#2980b9',
+              icon: 'fa-university',
+              size: new kakao.maps.Size(32, 37)
+            },
+            convenience: {
+              color: '#27ae60',
+              icon: 'fa-store',
+              size: new kakao.maps.Size(28, 33)
+            },
+            atm: {
+              color: '#8e44ad',
+              icon: 'fa-money-bill-alt',
+              size: new kakao.maps.Size(28, 33)
+            },
+            parking: {
+              color: '#e67e22',
+              icon: 'fa-parking',
+              size: new kakao.maps.Size(28, 33)
+            },
+            restaurant: {
+              color: '#e74c3c',
+              icon: 'fa-utensils',
+              size: new kakao.maps.Size(28, 33)
+            },
+            admin: {
+              color: '#34495e',
+              icon: 'fa-building',
+              size: new kakao.maps.Size(28, 33)
+            },
+            restarea: {
+              color: '#7f8c8d',
+              icon: 'fa-coffee',
+              size: new kakao.maps.Size(28, 33)
+            }
           };
+          
+          // SVG 마커 생성 함수
+          function createMarkerImageSVG(color) {
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg width="32" height="37" viewBox="0 0 32 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.16344 0 0 7.16344 0 16C0 27.68 16 37 16 37C16 37 32 27.68 32 16C32 7.16344 24.8366 0 16 0Z" fill="' + color + '"/><circle cx="16" cy="16" r="8" fill="white"/></svg>');
+          }
           
           // 지도 초기화
           function initMap() {
@@ -150,14 +199,18 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             markers.forEach(markerData => {
               var markerPosition = new kakao.maps.LatLng(markerData.position.lat, markerData.position.lng);
               
-              // 기본 마커 이미지 또는 카테고리별 이미지 설정
-              var markerImage;
-              if (markerImages[markerData.category]) {
-                markerImage = new kakao.maps.MarkerImage(
-                  markerImages[markerData.category],
-                  new kakao.maps.Size(24, 35)
-                );
-              }
+              // 카테고리별 설정 적용
+              var config = categoryConfig[markerData.category] || {
+                color: '#2c3e50', 
+                icon: 'fa-map-marker-alt',
+                size: new kakao.maps.Size(28, 33)
+              };
+              
+              // SVG 기반 마커 이미지 생성
+              var markerImage = new kakao.maps.MarkerImage(
+                createMarkerImageSVG(config.color),
+                config.size
+              );
               
               // 마커 생성
               var marker = new kakao.maps.Marker({
@@ -185,7 +238,9 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
               categoryMarkers[markerData.category].push(marker);
               
               // 마커 위에 shortName 표시하는 라벨 오버레이 생성
-              var labelContent = '<div class="markerLabel">' + markerData.shortName + '</div>';
+              var labelContent = '<div class="markerLabel ' + markerData.category + '">' + 
+                                '<i class="fas ' + config.icon + '"></i>' + 
+                                markerData.shortName + '</div>';
               var labelOverlay = new kakao.maps.CustomOverlay({
                 content: labelContent,
                 position: markerPosition,
