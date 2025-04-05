@@ -1,4 +1,4 @@
-// 시설물 마커 데이터 정의
+// 시설물 마커 데이터 타입
 export type MarkerData = {
   id: string;
   category: string;
@@ -11,7 +11,7 @@ export type MarkerData = {
   description: string;
 };
 
-// 카테고리 정의
+// 카테고리
 export const CATEGORIES = [
   { id: "campus", name: "교내시설" },
   { id: "convenience", name: "편의점" },
@@ -23,7 +23,7 @@ export const CATEGORIES = [
   { id: "sports", name: "체육시설" },
 ];
 
-// 마커 데이터 (실제 데이터로 대체 필요)
+// 마커 데이터
 export const MARKERS: MarkerData[] = [
   {
     id: "building2",
@@ -32,6 +32,14 @@ export const MARKERS: MarkerData[] = [
     shortName: "2호관",
     fullName: "2호관 - 자연관",
     description: "물리학과, 화학과, 생명과학과가 위치함",
+  },
+  {
+    id: "building3",
+    category: "campus",
+    position: { lat: 35.1417, lng: 129.0982 },
+    shortName: "3호관",
+    fullName: "3호관 - 인문관",
+    description: "인문대학, 사회과학대학이 위치함",
   },
   {
     id: "gs25_1",
