@@ -16,10 +16,11 @@ export const busSchedules: BusSchedule[] = [
   { id: '12', departureStop: '공과대', departureTime: '15:15', notify: false },
   { id: '13', departureStop: '도서관', departureTime: '15:30', notify: false },
   { id: '14', departureStop: '공과대', departureTime: '15:45', notify: false },
-  { id: '15', departureStop: '도서관', departureTime: '17:00', notify: false },
-  { id: '16', departureStop: '공과대', departureTime: '17:15', notify: false },
-  { id: '17', departureStop: '도서관', departureTime: '17:30', notify: false },
-  { id: '18', departureStop: '공과대', departureTime: '17:45', notify: false },
+  { id: '15', departureStop: '공과대', departureTime: '16:30', notify: false },
+  // { id: '15', departureStop: '도서관', departureTime: '17:00', notify: false },
+  // { id: '16', departureStop: '공과대', departureTime: '17:15', notify: false },
+  // { id: '17', departureStop: '도서관', departureTime: '17:30', notify: false },
+  // { id: '18', departureStop: '공과대', departureTime: '17:45', notify: false },
 ];
 
 // 특정 정류장의 버스 일정만 필터링하는 유틸리티 함수

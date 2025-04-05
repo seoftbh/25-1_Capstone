@@ -44,12 +44,14 @@ export const timeUtils = {
     const remainingMinutes = Math.floor(diffSeconds / 60);
     const remainingSeconds = diffSeconds % 60;
     
-    // 1분 미만이면 "곧 출발"
-    if (remainingMinutes < 1) {
+    // 남은 시간에 따라 다른 메시지 표시
+    if (remainingMinutes > 20) {
+      return "운행 대기";
+    } else if (remainingMinutes < 1) {
       return "잠시 후 출발";
+    } else {
+      // 1분 이상 20분 이하인 경우 분:초 형식으로 반환
+      return `${remainingMinutes}분 ${remainingSeconds}초 후\n출발`;
     }
-    
-    // 그렇지 않으면 분:초 형식으로 반환
-    return `${remainingMinutes}분 ${remainingSeconds}초 후 출발`;
   }
 };
