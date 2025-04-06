@@ -8,10 +8,19 @@
       ]
     }
   },
+  "expo": {
+    "router": {
+      "ignoreNoDefaultExport": ["*.ts"]
+    }
+  },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/(tabs)/screen4tsx"  ]
+    "expo-env.d.ts",
+    "app/(tabs)/screen4.tsx"
+  ],
+  "exclude": [
+    "node_modules/expo-notifications/tsconfig.json",
+  ]
 }

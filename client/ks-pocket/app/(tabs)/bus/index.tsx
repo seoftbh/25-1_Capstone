@@ -14,11 +14,24 @@ import {
   Dimensions,
   ScrollView,
   Modal,
-  Animated, // 애니메이션을 위한 추가
+  Animated,
+  ActivityIndicator, // 로딩 인디케이터 추가
+  Platform, // 플랫폼 감지용
 } from "react-native";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
+// Notifications 설정 - 파일 상단에 추가
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // 타입 및 유틸리티 임포트
 import { BusSchedule } from "../../types/bus";
@@ -99,10 +112,18 @@ const ScheduleItem = ({
   item: BusSchedule;
   onToggleNotification: (id: string) => void;
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  
   // 정류장에 따라 테두리 색상 결정
   const borderColor = item.departureStop === "도서관" 
     ? colors.BROWN_400 
     : colors.BLUE_500;
+  
+  const handleNotify = async () => {
+    setIsLoading(true);
+    await onToggleNotification(item.id);
+    setIsLoading(false);
+  };
     
   return (
     <View style={[
@@ -120,14 +141,19 @@ const ScheduleItem = ({
         </Text>
       </View>
       <TouchableOpacity
-        onPress={() => onToggleNotification(item.id)}
+        onPress={handleNotify}
         style={styles.notifyButton}
+        disabled={isLoading}
       >
-        <MaterialIcons
-          name={item.notify ? "notifications-active" : "notifications-none"}
-          size={24}
-          color={item.notify ? "#4CAF50" : "#757575"}
-        />
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.BROWN_500} />
+        ) : (
+          <MaterialIcons
+            name={item.notify ? "notifications-active" : "notifications-none"}
+            size={24}
+            color={item.notify ? colors.GOLD_700 : colors.GRAY_400}
+          />
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -275,6 +301,120 @@ export default function BusScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // 알림 관련 상태 추가
+  const [notificationPermission, setNotificationPermission] = useState<boolean>(false);
+  const notificationListener = useRef<any>();
+  const responseListener = useRef<any>();
+
+  // 알림 권한 요청 및 리스너 설정
+  useEffect(() => {
+    // 알림 권한 요청
+    (async () => {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('bus-notifications', {
+          name: '버스 알림',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      setNotificationPermission(finalStatus === 'granted');
+    })();
+
+    // 알림 리스너 설정
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('알림 수신:', notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('알림 응답:', response);
+    });
+
+    // 컴포넌트 언마운트 시 리스너 제거
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  // 버스 알림 스케줄링 함수 수정
+  const scheduleBusNotification = async (schedule: BusSchedule) => {
+    if (!notificationPermission) {
+      console.log('알림 권한이 없습니다.');
+      return null;
+    }
+
+    try {
+      // 현재 시간과 버스 출발 시간 파싱
+      const [hours, minutes] = schedule.departureTime.split(':').map(Number);
+      
+      // 오늘 날짜에 버스 출발 시간 설정
+      const departureTime = new Date();
+      departureTime.setHours(hours, minutes, 0, 0);
+      
+      // 3분 전 시간 계산
+      const notificationTime = new Date(departureTime);
+      notificationTime.setMinutes(notificationTime.getMinutes() - 3);
+      
+      // 현재 시간
+      const now = new Date();
+      
+      // 이미 지난 시간이면 알림 설정 안함
+      if (now > notificationTime) {
+        console.log('이미 알림 시간이 지났습니다.');
+        return null;
+      }
+
+      // 알림까지 남은 시간(초) 계산
+      const secondsUntilNotification = Math.max(1, Math.floor((notificationTime.getTime() - now.getTime()) / 1000));
+
+      // 알림 내용 설정
+      const title = '버스 출발 알림';
+      const body = `${schedule.departureStop}에서 ${schedule.departureTime}에 출발하는 버스가 곧(3분 후) 출발합니다.`;
+      
+      // seconds 속성을 사용하여 알림 스케줄링
+      const identifier = await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data: { scheduleId: schedule.id },
+        },
+        trigger: {
+          type: 'timeInterval' as any,
+          seconds: secondsUntilNotification, 
+          repeats: false
+        }
+      });
+      
+      console.log(`알림 설정 완료 (ID: ${identifier}), ${secondsUntilNotification}초 후`);
+      return identifier;
+    } catch (error) {
+      console.error('알림 설정 중 오류가 발생했습니다:', error);
+      return null;
+    }
+  };
+
+  // 알림 취소 함수
+  const cancelBusNotification = async (notificationId: string) => {
+    try {
+      await Notifications.cancelScheduledNotificationAsync(notificationId);
+      console.log(`알림 취소 완료 (ID: ${notificationId})`);
+      return true;
+    } catch (error) {
+      console.error('알림 취소 중 오류가 발생했습니다:', error);
+      return false;
+    }
+  };
+
   // 정류장별 시간표 보기 핸들러
   const handleViewSchedule = useCallback((stop: string) => {
     // console.log(`Viewing schedule for ${stop}`);
@@ -358,25 +498,89 @@ export default function BusScreen() {
   }, []);
 
   // 다음 버스 정보 업데이트
-  useEffect(() => {
-    // 도서관, 공과대 정류장의 다음 버스 정보 업데이트
-    setLibraryNextBus(getNextBus("도서관", currentTime));
-    setEngineeringNextBus(getNextBus("공과대", currentTime));
+useEffect(() => {
+  // 도서관, 공과대 정류장의 다음 버스 정보 업데이트
+  setLibraryNextBus(getNextBus("도서관", currentTime));
+  setEngineeringNextBus(getNextBus("공과대", currentTime));
 
-    // 다가오는 모든 버스 일정 업데이트
-    setUpcomingBuses(getUpcomingSchedules(currentTime));
-  }, [currentTime, schedules]);
+  // 다가오는 모든 버스 일정 업데이트
+  const upcoming = getUpcomingSchedules(currentTime);
+  
+  // 기존 알림 상태 보존하면서 업데이트
+  const upcomingWithNotify = upcoming.map(upBus => {
+    const existingBus = schedules.find(s => s.id === upBus.id);
+    if (existingBus) {
+      return {
+        ...upBus,
+        notify: existingBus.notify,
+        notificationId: existingBus.notificationId
+      };
+    }
+    return upBus;
+  });
+  
+  setUpcomingBuses(upcomingWithNotify);
+}, [currentTime, schedules]);
 
-  // 알림 토글 핸들러
-  const toggleNotification = (id: string) => {
-    setSchedules((prev) =>
-      prev.map((schedule) =>
-        schedule.id === id
-          ? { ...schedule, notify: !schedule.notify }
-          : schedule
+// 알림 토글 핸들러 수정
+const toggleNotification = async (id: string) => {
+  const schedule = schedules.find(s => s.id === id);
+  if (!schedule) return;
+
+  // 현재 notify 상태의 반대 값
+  const newNotifyState = !schedule.notify;
+  
+  // 즉시 UI 업데이트 (사용자에게 즉각적 피드백 제공)
+  setSchedules(prev =>
+    prev.map(s =>
+      s.id === id ? { ...s, notify: newNotifyState } : s
+    )
+  );
+  
+  try {
+    if (newNotifyState) {
+      // 알림 활성화
+      const notificationId = await scheduleBusNotification(schedule);
+      
+      if (notificationId) {
+        // notificationId만 추가 업데이트 (notify는 이미 변경됨)
+        setSchedules(prev =>
+          prev.map(s =>
+            s.id === id ? { ...s, notificationId } : s
+          )
+        );
+      } else {
+        // 알림 설정 실패 시 notify 상태 롤백
+        console.log('알림 설정 실패');
+        setSchedules(prev =>
+          prev.map(s =>
+            s.id === id ? { ...s, notify: !newNotifyState } : s
+          )
+        );
+      }
+    } else {
+      // 알림 비활성화
+      if (schedule.notificationId) {
+        await cancelBusNotification(schedule.notificationId);
+      }
+      
+      // notificationId 제거 (notify는 이미 변경됨)
+      setSchedules(prev =>
+        prev.map(s =>
+          s.id === id ? { ...s, notificationId: undefined } : s
+        )
+      );
+    }
+  } catch (error) {
+    // 오류 발생 시 상태 롤백
+    console.error('알림 토글 오류:', error);
+    setSchedules(prev =>
+      prev.map(s =>
+        s.id === id ? { ...s, notify: !newNotifyState } : s
       )
     );
-  };
+  }
+};
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
