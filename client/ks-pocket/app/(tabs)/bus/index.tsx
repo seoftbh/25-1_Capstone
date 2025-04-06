@@ -288,6 +288,37 @@ const TimeTableHeader = () => (
   </View>
 );
 
+// 대기 중인 알림 목록 조회 함수
+const logPendingNotifications = async () => {
+  try {
+    const notifications = await Notifications.getAllScheduledNotificationsAsync();
+    console.log('=============================================');
+    console.log('현재 대기 중인 알림 목록:');
+    console.log('총 개수:', notifications.length);
+    
+    notifications.forEach((notification, index) => {
+      const { identifier, content, trigger } = notification;
+      console.log(`[${index + 1}] ID: ${identifier}`);
+      console.log(`  - 제목: ${content.title}`);
+      console.log(`  - 내용: ${content.body}`);
+      console.log(`  - 데이터:`, content.data);
+      
+      // 트리거 정보 (시간)
+      if (trigger && 'seconds' in trigger) {
+        console.log(`  - 알림 예정: ${trigger.seconds}초 후`);
+      } else if (trigger && 'date' in trigger) {
+        console.log(`  - 알림 예정 시간: ${new Date(trigger.date).toLocaleString()}`);
+      }
+      console.log('---------------------------------------------');
+    });
+    console.log('=============================================');
+    return notifications;
+  } catch (error) {
+    console.error('알림 목록 조회 실패:', error);
+    return [];
+  }
+};
+
 export default function BusScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [schedules, setSchedules] = useState<BusSchedule[]>(busSchedules);
@@ -549,6 +580,9 @@ const toggleNotification = async (id: string) => {
             s.id === id ? { ...s, notificationId } : s
           )
         );
+        
+        // 알림 추가 후 대기 중인 알림 목록 출력
+        await logPendingNotifications();
       } else {
         // 알림 설정 실패 시 notify 상태 롤백
         console.log('알림 설정 실패');
@@ -570,6 +604,9 @@ const toggleNotification = async (id: string) => {
           s.id === id ? { ...s, notificationId: undefined } : s
         )
       );
+      
+      // 알림 취소 후 대기 중인 알림 목록 출력
+      await logPendingNotifications();
     }
   } catch (error) {
     // 오류 발생 시 상태 롤백
