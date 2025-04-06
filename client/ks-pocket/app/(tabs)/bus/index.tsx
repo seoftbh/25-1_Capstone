@@ -214,12 +214,12 @@ const FullScheduleButton = ({ title, onPress }: { title: string; onPress: () => 
   <TouchableOpacity 
     style={styles.fullScheduleButton} 
     onPress={() => {
-      console.log(`Button pressed: ${title}`);  // 디버깅용 로그 추가
+      // console.log(`Button pressed: ${title}`);  // 디버깅용 로그 추가
       onPress();
     }}
     activeOpacity={0.7}  // 버튼 터치 피드백 개선
   >
-    <MaterialIcons name="schedule" size={18} color={colors.BROWN_500} style={styles.fullScheduleIcon} />
+    <MaterialCommunityIcons name="timetable" size={18} color={colors.BROWN_500} style={styles.fullScheduleIcon} />
     <Text style={styles.fullScheduleText}>{title}</Text>
   </TouchableOpacity>
 );
@@ -263,7 +263,7 @@ export default function BusScreen() {
 
   // 정류장별 시간표 보기 핸들러
   const handleViewSchedule = useCallback((stop: string) => {
-    console.log(`Viewing schedule for ${stop}`);
+    // console.log(`Viewing schedule for ${stop}`);
     setSelectedStop(stop);
     setModalVisible(true); // 모달 열기
     
@@ -504,7 +504,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BROWN_500,
     elevation: 3,
     borderRadius: 16,
-    margin: 16,
+    marginTop: 16,
+    marginHorizontal: 16,
+    marginBottom: 12,
     overflow: "hidden",
   },
   topTimeContainer: {
@@ -664,7 +666,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 12,
     borderRadius: 16,
-    marginTop: -4,
+    // marginTop: -4,
   },
   calloutIconContainer: {
     marginRight: 10,
@@ -683,15 +685,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 16,
   },
   fullScheduleButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.BROWN_100,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    borderRadius: 16,
     flex: 0.48,
     justifyContent: "center",
     elevation: 2,
