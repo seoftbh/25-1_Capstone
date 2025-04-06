@@ -379,7 +379,7 @@ export default function BusScreen() {
 
       // 알림 내용 설정
       const title = '버스 출발 알림';
-      const body = `${schedule.departureStop}에서 ${schedule.departureTime}에 출발하는 버스가 곧(3분 후) 출발합니다.`;
+      const body = `${schedule.departureStop}에서 ${schedule.departureTime}에 출발하는 버스가 곧 출발합니다.`;
       
       // seconds 속성을 사용하여 알림 스케줄링
       const identifier = await Notifications.scheduleNotificationAsync({
