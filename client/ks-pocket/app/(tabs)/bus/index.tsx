@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 16,
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 14,
     overflow: "hidden",
   },
   topTimeContainer: {
@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
   fullScheduleButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.BROWN_100,
+    backgroundColor: colors.BROWN_50,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 16,
@@ -701,6 +701,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
+    marginHorizontal: 2,
   },
   fullScheduleIcon: {
     marginRight: 6,
