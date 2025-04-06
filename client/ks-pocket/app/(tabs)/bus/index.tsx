@@ -12,9 +12,13 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  ScrollView,
+  Modal,
+  Animated, // 애니메이션을 위한 추가
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // 타입 및 유틸리티 임포트
 import { BusSchedule } from "../../types/bus";
@@ -23,6 +27,7 @@ import {
   busSchedules,
   getNextBus,
   getUpcomingSchedules,
+  getSchedulesByStop,
 } from "../../data/busSchedules";
 import { colors } from "@/constants";
 
@@ -204,15 +209,130 @@ const InfoCallout = () => (
   </View>
 );
 
+// 전체 시간표 버튼 컴포넌트
+const FullScheduleButton = ({ title, onPress }: { title: string; onPress: () => void }) => (
+  <TouchableOpacity 
+    style={styles.fullScheduleButton} 
+    onPress={() => {
+      console.log(`Button pressed: ${title}`);  // 디버깅용 로그 추가
+      onPress();
+    }}
+    activeOpacity={0.7}  // 버튼 터치 피드백 개선
+  >
+    <MaterialIcons name="schedule" size={18} color={colors.BROWN_500} style={styles.fullScheduleIcon} />
+    <Text style={styles.fullScheduleText}>{title}</Text>
+  </TouchableOpacity>
+);
+
+// 시간표 테이블 행 컴포넌트
+const TimeTableRow = ({ am, pm }: { am?: string | null; pm?: string | null }) => (
+  <View style={styles.timeTableRow}>
+    <View style={styles.timeTableCell}>
+      <Text style={styles.timeTableText}>{am || "-"}</Text>
+    </View>
+    <View style={styles.timeTableCell}>
+      <Text style={styles.timeTableText}>{pm || "-"}</Text>
+    </View>
+  </View>
+);
+
+// 시간표 헤더 행 컴포넌트
+const TimeTableHeader = () => (
+  <View style={styles.timeTableHeaderRow}>
+    <View style={styles.timeTableHeaderCell}>
+      <Text style={styles.timeTableHeaderText}>오전</Text>
+    </View>
+    <View style={styles.timeTableHeaderCell}>
+      <Text style={styles.timeTableHeaderText}>오후</Text>
+    </View>
+  </View>
+);
+
 export default function BusScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [schedules, setSchedules] = useState<BusSchedule[]>(busSchedules);
-  const [libraryNextBus, setLibraryNextBus] = useState<BusSchedule | null>(
-    null
-  );
-  const [engineeringNextBus, setEngineeringNextBus] =
-    useState<BusSchedule | null>(null);
+  const [libraryNextBus, setLibraryNextBus] = useState<BusSchedule | null>(null);
+  const [engineeringNextBus, setEngineeringNextBus] = useState<BusSchedule | null>(null);
   const [upcomingBuses, setUpcomingBuses] = useState<BusSchedule[]>([]);
+  const [selectedStop, setSelectedStop] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // 애니메이션을 위한 값 추가
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // 정류장별 시간표 보기 핸들러
+  const handleViewSchedule = useCallback((stop: string) => {
+    console.log(`Viewing schedule for ${stop}`);
+    setSelectedStop(stop);
+    setModalVisible(true); // 모달 열기
+    
+    // 모달이 열릴 때 애니메이션
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [slideAnim, fadeAnim]);
+
+  // 모달 닫기 핸들러
+  const handleSheetClose = useCallback(() => {
+    // 모달이 닫힐 때 애니메이션
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setModalVisible(false); // 애니메이션이 끝난 후 모달 상태 변경
+    });
+  }, [slideAnim, fadeAnim]);
+
+  // 시간표를 오전/오후로 분류하는 함수
+  const getFormattedTimeTable = useCallback((stop: string) => {
+    const stopSchedules = getSchedulesByStop(stop);
+    
+    // 오전/오후로 시간 분류
+    const amSchedules = stopSchedules
+      .filter(schedule => {
+        const hour = parseInt(schedule.departureTime.split(':')[0]);
+        return hour < 12;
+      })
+      .map(schedule => schedule.departureTime);
+    
+    const pmSchedules = stopSchedules
+      .filter(schedule => {
+        const hour = parseInt(schedule.departureTime.split(':')[0]);
+        return hour >= 12;
+      })
+      .map(schedule => schedule.departureTime);
+    
+    // 오전/오후 배열 길이 맞추기 (더 긴 배열에 맞춤)
+    const maxLength = Math.max(amSchedules.length, pmSchedules.length);
+    
+    const rows = [];
+    for (let i = 0; i < maxLength; i++) {
+      rows.push({
+        am: amSchedules[i] || null,
+        pm: pmSchedules[i] || null,
+      });
+    }
+    
+    return rows;
+  }, []);
 
   // 현재 시간을 1초마다 업데이트
   useEffect(() => {
@@ -245,26 +365,113 @@ export default function BusScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* 상단부 - 실시간 버스 정보 (내부에 시간 포함) */}
-      <TopSection
-        libraryNextBus={libraryNextBus}
-        engineeringNextBus={engineeringNextBus}
-        currentTime={currentTime}
-      />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={[styles.container, { position: 'relative' }]}>
+        {/* 상단부 - 실시간 버스 정보 */}
+        <TopSection
+          libraryNextBus={libraryNextBus}
+          engineeringNextBus={engineeringNextBus}
+          currentTime={currentTime}
+        />
 
-      {/* 참고 안내 메시지 */}
-      <InfoCallout />
+        {/* 전체 시간표 버튼 영역 */}
+        <View style={styles.scheduleButtonContainer}>
+          <FullScheduleButton 
+            title="도서관 시간표" 
+            onPress={() => handleViewSchedule("도서관")} 
+          />
+          <FullScheduleButton 
+            title="공과대 시간표" 
+            onPress={() => handleViewSchedule("공과대")} 
+          />
+        </View>
 
-      {/* 하단부 - 시간표 목록 */}
-      <BottomSection
-        upcomingSchedules={upcomingBuses}
-        onToggleNotification={toggleNotification}
-      />
-    </SafeAreaView>
+        {/* 참고 안내 메시지 */}
+        <InfoCallout />
+
+        {/* 하단부 - 시간표 목록 */}
+        <BottomSection
+          upcomingSchedules={upcomingBuses}
+          onToggleNotification={toggleNotification}
+        />
+
+        {/* 전체 시간표를 보여주는 모달 */}
+        <Modal
+          animationType="none"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={handleSheetClose}
+        >
+          <Animated.View
+            style={[
+              styles.modalOverlay,
+              {
+                opacity: fadeAnim, // 배경의 페이드 인/아웃
+              }
+            ]}
+          >
+            <TouchableOpacity
+              style={{ flex: 1, justifyContent: 'flex-end' }}
+              activeOpacity={1}
+              onPress={handleSheetClose}
+            >
+              <Animated.View 
+                style={[
+                  styles.modalContent,
+                  {
+                    transform: [
+                      {
+                        translateY: slideAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [300, 0], // 아래에서 위로 슬라이딩
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <TouchableOpacity 
+                  activeOpacity={1} 
+                  style={{ flex: 1 }}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  {/* 모달 헤더 */}
+                  <View style={styles.bottomSheetHeader}>
+                    <Text style={styles.bottomSheetTitle}>
+                      {selectedStop ? `${selectedStop} 전체 시간표` : "버스 시간표"}
+                    </Text>
+                    <TouchableOpacity onPress={handleSheetClose} style={styles.closeButton}>
+                      <MaterialIcons name="close" size={24} color={colors.BROWN_800} />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* 시간표 테이블 */}
+                  <ScrollView style={styles.timeTableContainer}>
+                    <TimeTableHeader />
+                    
+                    {selectedStop && 
+                      getFormattedTimeTable(selectedStop).map((row, index) => (
+                        <TimeTableRow 
+                          key={index} 
+                          am={row.am} 
+                          pm={row.pm} 
+                        />
+                      ))
+                    }
+                  </ScrollView>
+                </TouchableOpacity>
+              </Animated.View>
+            </TouchableOpacity>
+          </Animated.View>
+        </Modal>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
+// 스타일 확장
 const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
@@ -298,15 +505,13 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderRadius: 16,
     margin: 16,
-    overflow: "hidden", // 둥근 모서리 내부에 컨텐츠가 포함되도록
+    overflow: "hidden",
   },
   topTimeContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 12,
-    // borderBottomWidth: 1,
-    // borderBottomColor: "rgba(255,255,255,0.2)",
   },
   topTimeIcon: {
     fontSize: 16,
@@ -330,7 +535,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0e0e0",
     marginTop: 6,
     marginBottom: 8,
-    // paddingVertical: 16,
     height: "85%",
     alignSelf: "center",
   },
@@ -347,14 +551,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
-    // paddingTop: 8,
   },
   busTimeContainer: {
-    flex: 1, // 나머지 공간 모두 차지
+    flex: 1,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    // backgroundColor: "pink",
   },
   stationIcon: {
     fontSize: 24,
@@ -391,7 +593,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textAlignVertical: "center",
     lineHeight: 36,
-    // paddingBottom: 36,
     marginBottom: 8,
     minHeight: 80,
   },
@@ -444,7 +645,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // marginTop: 16,
     marginBottom: 16,
   },
   emptyScheduleIcon: {
@@ -465,8 +665,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 16,
     marginTop: -4,
-    // borderLeftWidth: 4,
-    // borderLeftColor: colors.BLUE_500,
   },
   calloutIconContainer: {
     marginRight: 10,
@@ -480,5 +678,111 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.BLACK,
     lineHeight: 18,
+  },
+  scheduleButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  fullScheduleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.WHITE,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    flex: 0.48,
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+  },
+  fullScheduleIcon: {
+    marginRight: 6,
+  },
+  fullScheduleText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.BROWN_800,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end', // 화면 하단에 위치
+  },
+  modalContent: {
+    backgroundColor: colors.GOLD_100,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    height: '60%', // 화면의 60%를 차지하도록 설정
+    // 그림자 효과
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  bottomSheetHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.GOLD_500,
+    marginBottom: 10,
+  },
+  bottomSheetTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.BROWN_800,
+  },
+  closeButton: {
+    padding: 4,
+  },
+  timeTableContainer: {
+    flex: 1,
+  },
+  timeTableHeaderRow: {
+    flexDirection: "row",
+    backgroundColor: colors.BROWN_500,
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+  timeTableHeaderCell: {
+    flex: 1,
+    padding: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  timeTableHeaderText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.WHITE,
+  },
+  timeTableRow: {
+    flexDirection: "row",
+    marginBottom: 4,
+  },
+  timeTableCell: {
+    flex: 1,
+    padding: 12,
+    backgroundColor: colors.WHITE,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 2,
+    borderRadius: 4,
+  },
+  timeTableText: {
+    fontSize: 16,
+    color: colors.BROWN_800,
   },
 });

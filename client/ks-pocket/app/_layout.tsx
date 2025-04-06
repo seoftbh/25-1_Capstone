@@ -26,6 +26,7 @@ import { queryClient } from "@/api/queryClient";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import React from "react";
 import { initializeAuth } from "@/api/auth";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -184,19 +185,27 @@ export default function RootLayout() {
   }
 
   return (
-    <ActionSheetProvider>
-      <QueryClientProvider client={queryClient}>
-        <>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="auth" options={{ headerShown: false }} />
-            <Stack.Screen name="post" options={{ headerShown: false }} />
-            <Stack.Screen name="assistant" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <Toast config={toastConfig} />
-        </>
-      </QueryClientProvider>
-    </ActionSheetProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <ActionSheetProvider>
+        <QueryClientProvider client={queryClient}>
+          <>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+              <Stack.Screen name="post" options={{ headerShown: false }} />
+              <Stack.Screen name="assistant" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <Toast config={toastConfig} />
+          </>
+        </QueryClientProvider>
+      </ActionSheetProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
