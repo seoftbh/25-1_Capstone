@@ -15,6 +15,8 @@ const colors = {
   BROWN_50: "#fffcf4",
   BROWN_100: "#F5F0EB",
   BROWN_200: "#E8E1D9",
+  BROWN_300: "#D8CFC4",
+  BROWN_400: "#C9B7A1",
   BROWN_500: "#68635E",
   BROWN_800: "#2B1907",
   BROWN_900: "#1F0D00",
@@ -43,6 +45,6 @@ const queryKeys = {
   GET_ME: "getMe",
   POST: "posts",
   GET_POSTS: "getPosts",
-}
+};
 
 export { colors, queryKeys };

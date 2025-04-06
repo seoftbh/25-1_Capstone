@@ -3,7 +3,7 @@ export const timeUtils = {
   // 시간을 12시간 형식으로 변환
   formatTo12Hour: (timeString: string): string => {
     const [hours, minutes] = timeString.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
+    const period = hours >= 12 ? '오후' : '오전';
     const hour12 = hours % 12 || 12;
     return `${period} ${hour12}:${minutes.toString().padStart(2, '0')}`;
   },
@@ -12,7 +12,7 @@ export const timeUtils = {
   getCurrentTimeFormatted: (currentTime: Date): string => {
     const hours = currentTime.getHours();
     const minutes = currentTime.getMinutes();
-    const period = hours >= 12 ? 'PM' : 'AM';
+    const period = hours >= 12 ? '오후' : '오전';
     const hour12 = hours % 12 || 12;
     return `${period} ${hour12}:${minutes.toString().padStart(2, '0')}`;
   },

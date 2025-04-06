@@ -91,33 +91,47 @@ const StationInfoCard = ({
   </View>
 );
 
-// 버스 시간표 항목 컴포넌트
+// 버스 시간표 항목 컴포넌트 수정
 const ScheduleItem = ({
   item,
   onToggleNotification,
 }: {
   item: BusSchedule;
   onToggleNotification: (id: string) => void;
-}) => (
-  <View style={styles.scheduleItem}>
-    <View style={styles.scheduleInfo}>
-      <Text style={styles.scheduleStop}>{item.departureStop}</Text>
-      <Text style={styles.scheduleTime}>
-        {timeUtils.formatTo12Hour(item.departureTime)}
-      </Text>
+}) => {
+  // 정류장에 따라 테두리 색상 결정
+  const borderColor = item.departureStop === "도서관" 
+    ? colors.BROWN_400 
+    : colors.BLUE_500;
+    
+  return (
+    <View style={[
+      styles.scheduleItem, 
+      { 
+        borderLeftWidth: 8, 
+        borderLeftColor: borderColor 
+      }
+    ]}>
+      <View style={styles.scheduleInfo}>
+        <Text style={styles.scheduleStop}>{item.departureStop}</Text>
+        <View style={styles.scheduleDivider} />
+        <Text style={styles.scheduleTime}>
+          {timeUtils.formatTo12Hour(item.departureTime)}
+        </Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => onToggleNotification(item.id)}
+        style={styles.notifyButton}
+      >
+        <MaterialIcons
+          name={item.notify ? "notifications-active" : "notifications-none"}
+          size={24}
+          color={item.notify ? "#4CAF50" : "#757575"}
+        />
+      </TouchableOpacity>
     </View>
-    <TouchableOpacity
-      onPress={() => onToggleNotification(item.id)}
-      style={styles.notifyButton}
-    >
-      <MaterialIcons
-        name={item.notify ? "notifications-active" : "notifications-none"}
-        size={24}
-        color={item.notify ? "#4CAF50" : "#757575"}
-      />
-    </TouchableOpacity>
-  </View>
-);
+  );
+};
 
 // 상단 실시간 버스 정보 섹션
 const TopSection = ({
@@ -620,25 +634,38 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 8,
     marginBottom: 8,
-    elevation: 1,
+    elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
+    overflow: 'hidden', // 색상 테두리가 경계를 넘지 않도록
+    borderLeftWidth: 4, // 기본 테두리 너비 (실제 색상은 동적으로 적용)
   },
   scheduleInfo: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
+    paddingLeft: 10, // 테두리와 내용 사이 간격 추가
   },
   scheduleStop: {
     fontSize: 16,
     fontWeight: "500",
-    minWidth: 60,
+    width: 60,
+    color: colors.BROWN_800,
+  },
+  scheduleDivider: {
+    height: 20, // 고정 높이
+    width: 1, // 1픽셀 너비 구분선
+    backgroundColor: colors.GRAY_300, // 옅은 회색
+    marginHorizontal: 12, // 양쪽에 여백
+    marginTop: 2, // 위쪽 여백
   },
   scheduleTime: {
+    marginLeft: 12,
     fontSize: 16,
-    marginLeft: 16,
     color: "#424242",
+    flex: 1, // 남은 공간 차지
   },
   notifyButton: {
     padding: 8,
