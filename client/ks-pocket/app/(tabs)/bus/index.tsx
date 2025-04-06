@@ -191,6 +191,19 @@ const BottomSection = ({
   </View>
 );
 
+// TopSection과 BottomSection 사이에 안내 메시지 Callout 컴포넌트 추가
+const InfoCallout = () => (
+  <View style={styles.calloutContainer}>
+    <View style={styles.calloutIconContainer}>
+      <MaterialCommunityIcons name="alert-circle" style={styles.calloutIcon} />
+    </View>
+    <Text style={styles.calloutText}>
+    버스 출발 시간은 운행 상황에 따라 변경될 수 있습니다.{"\n"}
+    안내된 시간은 참고용으로 이용해 주세요.
+    </Text>
+  </View>
+);
+
 export default function BusScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [schedules, setSchedules] = useState<BusSchedule[]>(busSchedules);
@@ -240,6 +253,9 @@ export default function BusScreen() {
         currentTime={currentTime}
       />
 
+      {/* 참고 안내 메시지 */}
+      <InfoCallout />
+
       {/* 하단부 - 시간표 목록 */}
       <BottomSection
         upcomingSchedules={upcomingBuses}
@@ -275,7 +291,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   topSection: {
-    flex: 0.5,
+    flex: 0.6,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
     backgroundColor: colors.BROWN_500,
@@ -439,5 +455,30 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: colors.GRAY_500,
     marginTop: 8,
+  },
+  calloutContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.GOLD_200,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 16,
+    marginTop: -4,
+    // borderLeftWidth: 4,
+    // borderLeftColor: colors.BLUE_500,
+  },
+  calloutIconContainer: {
+    marginRight: 10,
+  },
+  calloutIcon: {
+    fontSize: 24,
+    color: colors.BROWN_800,
+  },
+  calloutText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.BLACK,
+    lineHeight: 18,
   },
 });

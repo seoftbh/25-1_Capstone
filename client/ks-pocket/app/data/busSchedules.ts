@@ -2,6 +2,7 @@ import { BusSchedule } from '../types/bus';
 
 // 학교 셔틀버스 시간표 데이터
 export const busSchedules: BusSchedule[] = [
+  { id: '0', departureStop: '도서관', departureTime: '05:00', notify: false },
   { id: '1', departureStop: '도서관', departureTime: '09:00', notify: false },
   { id: '2', departureStop: '공과대', departureTime: '09:15', notify: false },
   { id: '3', departureStop: '도서관', departureTime: '09:30', notify: false },
