@@ -122,7 +122,8 @@ const containerStyle = [
             </Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="chatbubble-outline" size={16} color={colors.GRAY_500} />
+            {/* <Ionicons name="chatbubble-outline" size={16} color={colors.GRAY_500} /> */}
+            <Ionicons name="chatbox-outline" size={16} color={colors.GRAY_500} />
             <Text style={styles.statText}>
               {post.comment_count || post.comment_count || 0}
             </Text>
@@ -165,18 +166,19 @@ const containerStyle = [
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.WHITE,
-    borderColor: colors.GRAY_300,
-    borderWidth: 1,
+    // borderColor: colors.GRAY_300,
+    borderColor: colors.BROWN_200,
+    borderWidth: 3,
     // borderWidth: StyleSheet.hairlineWidth,
-    elevation: 1,
-    borderRadius: 12,
+    // elevation: 2,
+    borderRadius: 16,
   },
   detailContainer: {
     backgroundColor: colors.WHITE,
     borderColor: colors.GRAY_300,
     // borderWidth: 1,
     borderWidth: StyleSheet.hairlineWidth,
-    // elevation: 1,
+    elevation: 1,
     // borderRadius: 12,
   },
   contentContainer: {

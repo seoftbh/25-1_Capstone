@@ -128,7 +128,7 @@ export default function MoreScreen() {
         </View>
       ) : (
         <View style={styles.profileContainer_notLoggedIn}>
-          <Text style={commonStyles.text}>로그인하고 더 많은 기능을 이용해 보세요!</Text>
+          <Text style={styles.profileContainer_notLoggedIn_text}>로그인하고 더 많은 기능을 이용해 보세요!</Text>
           <CustomButton
             label="로그인"
             onPress={() => {
@@ -153,15 +153,22 @@ const styles = StyleSheet.create({
   profileContainer: {
     padding: 16,
     backgroundColor: '#f8f9fa',
-    borderRadius: 8,
+    borderRadius: 16,
     marginVertical: 16,
   },
   profileContainer_notLoggedIn: {
     padding: 16,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
+    backgroundColor: colors.GOLD_200,
+    borderRadius: 16,
     marginVertical: 16,
-    // alignItems: 'center',
+    alignItems: 'center',
+  },
+  profileContainer_notLoggedIn_text: {
+    fontSize: 16,
+    color: colors.BROWN_900,
+    marginBottom: 16,
+    paddingVertical: 16,
+    fontWeight: 'bold',
   },
   infoRow: {
     flexDirection: 'row',
