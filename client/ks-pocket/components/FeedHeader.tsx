@@ -31,7 +31,7 @@ function FeedHeader({
           source={
             imageUri
               ? { uri: imageUri }
-              : require("@/assets/images/react-logo.png")
+              : require("@/assets/images/avatar-gray.png")
           }
           style={styles.image}
         />

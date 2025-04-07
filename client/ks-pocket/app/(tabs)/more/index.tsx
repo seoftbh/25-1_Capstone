@@ -13,6 +13,7 @@ import ShortcutList from "@/components/ShortcutList";
 import { supabase } from "@/lib/supabase";
 import { Session } from '@supabase/supabase-js';
 import 'react-native-url-polyfill/auto';
+import { colors } from "@/constants";
 
 // 사용자 프로필 타입 정의
 type Profile = {
@@ -91,7 +92,7 @@ export default function MoreScreen() {
   };
 
   return (
-    <SafeAreaView style={commonStyles.safeArea}>
+    <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
       <Text style={commonStyles.h1}>내 정보</Text>
       
       {loading ? (
@@ -126,14 +127,14 @@ export default function MoreScreen() {
           />
         </View>
       ) : (
-        <View>
-          <Text style={commonStyles.text}>로그인이 필요합니다</Text>
+        <View style={styles.profileContainer_notLoggedIn}>
+          <Text style={commonStyles.text}>로그인하고 더 많은 기능을 이용해 보세요!</Text>
           <CustomButton
             label="로그인"
             onPress={() => {
               router.push("/auth");
             }}
-            style={styles.loginButton}
+            // style={styles.loginButton}
           />
         </View>
       )}
@@ -145,11 +146,22 @@ export default function MoreScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.GOLD_100,
+    flex: 1,
+  },
   profileContainer: {
     padding: 16,
     backgroundColor: '#f8f9fa',
     borderRadius: 8,
     marginVertical: 16,
+  },
+  profileContainer_notLoggedIn: {
+    padding: 16,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    marginVertical: 16,
+    // alignItems: 'center',
   },
   infoRow: {
     flexDirection: 'row',

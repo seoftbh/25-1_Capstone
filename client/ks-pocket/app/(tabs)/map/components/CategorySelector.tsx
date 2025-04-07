@@ -1,3 +1,4 @@
+import { colors } from "@/constants";
 import React, { useEffect } from "react";
 import {
   View,
@@ -69,7 +70,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
 const styles = StyleSheet.create({
   categoriesContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.GOLD_100,
     paddingVertical: 10,
     paddingHorizontal: 5,
     zIndex: 1000,
@@ -89,11 +90,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: colors.BROWN_200,
     marginHorizontal: 5,
   },
   categoryButtonActive: {
-    backgroundColor: "#3366FF",
+    backgroundColor: colors.BROWN_500,
   },
   categoryText: {
     fontSize: 14,
