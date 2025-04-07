@@ -164,14 +164,19 @@ const TopSection = ({
   libraryNextBus,
   engineeringNextBus,
   currentTime,
+  onResetNotifications,
 }: {
   libraryNextBus: BusSchedule | null;
   engineeringNextBus: BusSchedule | null;
   currentTime: Date;
+  onResetNotifications: () => void;
 }) => (
   <View style={styles.topSection}>
     {/* 상단에 현재 시간 표시 */}
-    <View style={styles.topTimeContainer}>
+    <TouchableOpacity
+      style={styles.topTimeContainer}
+      onPress={onResetNotifications}
+    >
       <MaterialCommunityIcons
         name="clock-time-three"
         style={styles.topTimeIcon}
@@ -179,7 +184,7 @@ const TopSection = ({
       <Text style={styles.topTime}>
         {timeUtils.getCurrentTimeFormatted(currentTime)}
       </Text>
-    </View>
+    </TouchableOpacity>
 
     {/* 하단에 정류장 정보 표시 */}
     <View style={styles.stationsContainer}>
@@ -328,6 +333,10 @@ export default function BusScreen() {
   const [selectedStop, setSelectedStop] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
+  // 알림 초기화 확인 모달 상태 추가
+  const [resetModalVisible, setResetModalVisible] = useState(false);
+  const [isResetting, setIsResetting] = useState(false); // 초기화 진행 중 상태
+  
   // 애니메이션을 위한 값 추가
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -342,32 +351,75 @@ export default function BusScreen() {
     // 알림 권한 요청
     (async () => {
       if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('bus-notifications', {
-          name: '버스 알림',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#FF231F7C',
-        });
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        
+        setNotificationPermission(finalStatus === 'granted');
       }
-
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      
-      setNotificationPermission(finalStatus === 'granted');
     })();
 
-    // 알림 리스너 설정
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+    // 알림 리스너 설정 - 수신 즉시 대기 목록에서 제거
+    notificationListener.current = Notifications.addNotificationReceivedListener(async notification => {
       console.log('알림 수신:', notification);
+      
+      try {
+        // 수신된 알림의 ID를 가져오기
+        const notificationId = notification.request.identifier;
+        const { data } = notification.request.content;
+        
+        // 알림이 수신되면 즉시 취소 (중복 방지)
+        await Notifications.cancelScheduledNotificationAsync(notificationId);
+        console.log(`수신된 알림 취소 완료: ${notificationId}`);
+        
+        // 관련 일정 찾아서 알림 상태 제거
+        if (data && data.scheduleId) {
+          const scheduleId = data.scheduleId;
+          
+          // schedules 상태 업데이트
+          setSchedules(prev =>
+            prev.map(s =>
+              s.id === scheduleId ? { ...s, notify: false, notificationId: undefined } : s
+            )
+          );
+        }
+        
+        // 대기 중인 알림 목록 확인 (디버깅용)
+        const remainingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+        console.log(`남은 알림 수: ${remainingNotifications.length}`);
+      } catch (error) {
+        console.error('알림 처리 중 오류 발생:', error);
+      }
     });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async response => {
       console.log('알림 응답:', response);
+      
+      try {
+        // 사용자가 알림에 응답한 경우에도 동일하게 처리
+        const notificationId = response.notification.request.identifier;
+        const { data } = response.notification.request.content;
+        
+        // 중복 방지를 위해 한 번 더 취소 시도
+        await Notifications.cancelScheduledNotificationAsync(notificationId);
+        
+        if (data && data.scheduleId) {
+          const scheduleId = data.scheduleId;
+          
+          // schedules 상태 업데이트
+          setSchedules(prev =>
+            prev.map(s =>
+              s.id === scheduleId ? { ...s, notify: false, notificationId: undefined } : s
+            )
+          );
+        }
+      } catch (error) {
+        console.error('알림 응답 처리 중 오류 발생:', error);
+      }
     });
 
     // 컴포넌트 언마운트 시 리스너 제거
@@ -619,6 +671,24 @@ const toggleNotification = async (id: string) => {
   }
 };
 
+  // 알림 초기화 핸들러
+  const resetNotifications = async () => {
+    setIsResetting(true);
+    try {
+      const notifications = await Notifications.getAllScheduledNotificationsAsync();
+      for (const notification of notifications) {
+        await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+      }
+      setSchedules(prev => prev.map(schedule => ({ ...schedule, notify: false, notificationId: undefined })));
+      console.log('모든 알림이 초기화되었습니다.');
+    } catch (error) {
+      console.error('알림 초기화 중 오류 발생:', error);
+    } finally {
+      setIsResetting(false);
+      setResetModalVisible(false);
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={[styles.container, { position: 'relative' }]}>
@@ -627,6 +697,7 @@ const toggleNotification = async (id: string) => {
           libraryNextBus={libraryNextBus}
           engineeringNextBus={engineeringNextBus}
           currentTime={currentTime}
+          onResetNotifications={() => setResetModalVisible(true)}
         />
 
         {/* 전체 시간표 버튼 영역 */}
@@ -720,6 +791,41 @@ const toggleNotification = async (id: string) => {
               </Animated.View>
             </TouchableOpacity>
           </Animated.View>
+        </Modal>
+
+        {/* 알림 초기화 확인 모달 */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={resetModalVisible}
+          onRequestClose={() => setResetModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.resetModalContent}>
+              <Text style={styles.resetModalTitle}>알림 초기화</Text>
+              <Text style={styles.resetModalMessage}>
+                모든 알림을 초기화하시겠습니까?
+              </Text>
+              <View style={styles.resetModalButtons}>
+                <TouchableOpacity
+                  style={styles.resetModalButton}
+                  onPress={() => setResetModalVisible(false)}
+                  disabled={isResetting}
+                >
+                  <Text style={styles.resetModalButtonText}>취소</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.resetModalButton, styles.resetModalConfirmButton]}
+                  onPress={resetNotifications}
+                  disabled={isResetting}
+                >
+                  <Text style={styles.resetModalButtonText}>
+                    {isResetting ? "초기화 중..." : "확인"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </Modal>
       </SafeAreaView>
     </GestureHandlerRootView>
@@ -1055,5 +1161,46 @@ const styles = StyleSheet.create({
   timeTableText: {
     fontSize: 16,
     color: colors.BROWN_800,
+  },
+  resetModalContent: {
+    backgroundColor: colors.WHITE,
+    padding: 20,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  resetModalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  resetModalMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  resetModalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  resetModalButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: colors.GRAY_300,
+    alignItems: "center",
+  },
+  resetModalConfirmButton: {
+    backgroundColor: colors.BROWN_500,
+  },
+  resetModalButtonText: {
+    fontSize: 16,
+    color: colors.WHITE,
   },
 });

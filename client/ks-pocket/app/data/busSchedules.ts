@@ -29,6 +29,18 @@ export const busSchedules: BusSchedule[] = [
   { id: '24', departureStop: '도서관', departureTime: '13:55', notify: false },
   { id: '25', departureStop: '공과대', departureTime: '14:00', notify: false },
   { id: '26', departureStop: '도서관', departureTime: '14:05', notify: false },
+  { id: '27', departureStop: '도서관', departureTime: '22:05', notify: false },
+  { id: '28', departureStop: '도서관', departureTime: '22:10', notify: false },
+  { id: '29', departureStop: '도서관', departureTime: '22:15', notify: false },
+  { id: '30', departureStop: '도서관', departureTime: '22:20', notify: false },
+  { id: '31', departureStop: '도서관', departureTime: '22:25', notify: false },
+  { id: '32', departureStop: '도서관', departureTime: '22:30', notify: false },
+  { id: '33', departureStop: '도서관', departureTime: '22:35', notify: false },
+  { id: '34', departureStop: '도서관', departureTime: '22:40', notify: false },
+  { id: '35', departureStop: '도서관', departureTime: '22:45', notify: false },
+  { id: '36', departureStop: '도서관', departureTime: '22:50', notify: false },
+  { id: '37', departureStop: '도서관', departureTime: '22:55', notify: false },
+  { id: '38', departureStop: '도서관', departureTime: '23:00', notify: false },
 ];
 
 // 특정 정류장의 버스 일정만 필터링하는 유틸리티 함수
