@@ -8,3 +8,4 @@
 | 2    | [시스템 설계 및 UI/UX 디자인](./md/week2.md)   | [Figma](https://www.figma.com/design/CWtoHKFpdZyaD5XMPkcIpj/25-1_Capstone-Design) |
 | 3    | [개발 환경 구축 및 DB 연동](./md/week3.md)     |                                                                                   |
 | 4    | [UI 개선 및 게시판 기능 확장](./md/week4.md)     |                                                                                   |
+| 5    | [AI 챗봇 및 교내 지도 기능 구현](./md/week5.md)     |                                                                                   |
