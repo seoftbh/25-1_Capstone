@@ -860,8 +860,8 @@ const styles = StyleSheet.create({
   },
   topSection: {
     flex: 0.6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#e0e0e0",
     backgroundColor: colors.BROWN_500,
     elevation: 3,
     borderRadius: 16,

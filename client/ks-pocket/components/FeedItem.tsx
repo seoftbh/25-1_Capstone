@@ -99,7 +99,7 @@ const containerStyle = [
                 }}
               >
                 <Ionicons
-                  name="ellipsis-horizontal"
+                  name="ellipsis-vertical"
                   size={20}
                   color={colors.GRAY_500}
                 />
