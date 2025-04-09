@@ -46,7 +46,7 @@ export default function AssistantScreen() {
     {
       id: "1",
       content:
-        "안녕하세요! 경성대 AI 상담원 별이에요.\n 어떤 도움이 필요하신가요? 😊",
+        "안녕하세요! 경성대 AI 상담원 별이에요.\n어떤 도움이 필요하신가요? 😊",
       sender: "assistant",
       timestamp: new Date(),
     },
@@ -134,7 +134,7 @@ export default function AssistantScreen() {
       // 오류 메시지 추가
       const errorMessage: MessageType = {
         id: (Date.now() + 1).toString(),
-        content: "앗, 죄송해요. 😢 메시지 처리 중에 오류가 있었어요. 잠시 후 다시 시도해 주세요!",
+        content: "앗, 죄송해요. 😢\n 메시지 처리 중에 오류가 있었어요.\n잠시 후 다시 시도해 주세요!",
         sender: "assistant",
         timestamp: new Date(),
       };
