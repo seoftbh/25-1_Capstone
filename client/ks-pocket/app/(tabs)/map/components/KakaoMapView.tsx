@@ -117,6 +117,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             campus: [],
             convenience: [],
             cvs: [],
+            cafe: [],
             atm: [],
             parking: [],
             restaurant: [],
