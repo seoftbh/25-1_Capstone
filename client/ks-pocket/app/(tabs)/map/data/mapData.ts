@@ -14,7 +14,9 @@ export type MarkerData = {
 // 카테고리
 export const CATEGORIES = [
   { id: "campus", name: "교내시설" },
-  { id: "convenience", name: "편의점" },
+  { id: "convenience", name: "편의시설" },
+  { id: "cvs", name: "편의점" },
+  { id: "cafe", name: "카페" },
   { id: "atm", name: "ATM" },
   { id: "parking", name: "주차장" },
   { id: "restaurant", name: "식당" },
@@ -43,7 +45,7 @@ export const MARKERS: MarkerData[] = [
   },
   {
     id: "gs25_1",
-    category: "convenience",
+    category: "cvs",
     position: { lat: 35.1399, lng: 129.0988 },
     shortName: "GS25",
     fullName: "GS25 대학로점",
@@ -94,6 +96,14 @@ export const MARKERS: MarkerData[] = [
     category: "sports",
     position: { lat: 35.1385, lng: 129.0978 },
     shortName: "체육관",
+    fullName: "중앙 체육관",
+    description: "농구, 배드민턴 등 다양한 스포츠 시설",
+  },
+  {
+    id: "convenience1",
+    category: "convenience",
+    position: { lat: 35.1383, lng: 129.0978 },
+    shortName: "프린터",
     fullName: "중앙 체육관",
     description: "농구, 배드민턴 등 다양한 스포츠 시설",
   },

@@ -26,7 +26,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapApiKey}"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
         <style>
           body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
           #map { width: 100%; height: 100%; }
@@ -65,6 +65,8 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           /* 카테고리별 색상 */
           .campus { background: rgba(41, 128, 185, 0.9); }
           .convenience { background: rgba(39, 174, 96, 0.9); }
+          .cvs { background: rgba(230, 192, 4, 0.9); }
+          .cafe { background: rgba(94, 60, 31, 0.9); }
           .atm { background: rgba(142, 68, 173, 0.9); }
           .parking { background: rgba(230, 126, 34, 0.9); }
           .restaurant { background: rgba(231, 76, 60, 0.9); }
@@ -114,6 +116,7 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
           var categoryMarkers = {
             campus: [],
             convenience: [],
+            cvs: [],
             atm: [],
             parking: [],
             restaurant: [],
@@ -131,7 +134,17 @@ const KakaoMapView = forwardRef<WebView, KakaoMapViewProps>(
             },
             convenience: {
               color: '#27ae60',
+              icon: 'fa-star',
+              size: new kakao.maps.Size(38, 44)
+            },
+            cvs: {
+              color: '#e6c204',
               icon: 'fa-store',
+              size: new kakao.maps.Size(38, 44)
+            },
+            cafe: {
+              color: '#5e3c1f',
+              icon: 'fa-coffee',
               size: new kakao.maps.Size(38, 44)
             },
             atm: {

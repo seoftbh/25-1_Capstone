@@ -19,6 +19,7 @@ export default function MapScreen() {
   const categories = [
     { id: "campus", name: "캠퍼스" },
     { id: "convenience", name: "편의시설" },
+    { id: "cvs", name: "편의점" },
     { id: "atm", name: "ATM" },
     { id: "parking", name: "주차장" },
     { id: "restaurant", name: "식당" },
