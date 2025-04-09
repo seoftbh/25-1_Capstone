@@ -4,7 +4,14 @@
 |--------------------------------------------------
 */
 
-import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  ImageBackground,
+  ScrollView,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
@@ -14,6 +21,7 @@ import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 import { colors } from "@/constants";
+import { Ionicons } from "@expo/vector-icons";
 
 // 사용자 프로필 타입 정의
 type Profile = {
@@ -93,62 +101,75 @@ export default function MoreScreen() {
   };
 
   return (
-    <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
-      <Text style={commonStyles.h1}>내 정보</Text>
+    <SafeAreaView>
+      <ScrollView>
+        <View style={[styles.container]}>
+          <Text style={commonStyles.h1}>내 정보</Text>
 
-      {loading ? (
-        <Text style={commonStyles.text}>정보를 불러오는 중...</Text>
-      ) : session && session.user ? (
-        <View style={styles.profileContainer}>
-          <View style={styles.profileInnerContainer}>
-            <Text style={commonStyles.h2}>
-              {profile?.name || getUserMetadata().name}님 환영합니다
-            </Text>
+          {loading ? (
+            <Text style={commonStyles.text}>정보를 불러오는 중...</Text>
+          ) : session && session.user ? (
+            <View style={styles.profileContainer}>
+              <ImageBackground
+                source={require("@/assets/images/profile-logo-bg.png")}
+                resizeMode="cover"
+                style={styles.profileInnerContainer}
+                imageStyle={styles.backgroundImage}
+              >
+                <View style={styles.contentOverlay}>
+                  <View style={styles.logoContainer}>
+                    <ImageBackground
+                      source={require("@/assets/images/ksu-logo.png")}
+                      style={styles.logo}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <Text style={styles.profileDept}>
+                    {profile?.dept || getUserMetadata().dept}
+                  </Text>
+                  <Text style={styles.profileName}>
+                    {profile?.name || getUserMetadata().name}
+                  </Text>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>이메일:</Text>
-              <Text style={styles.infoValue}>{session.user.email}</Text>
+                  <View style={styles.infoRow}>
+                    {/* <Text style={styles.infoLabel}>이메일:</Text> */}
+                    <Ionicons
+                      name="mail-outline"
+                      size={22}
+                      color={colors.WHITE}
+                      style={{ marginRight: 8, paddingVertical: 1 }}
+                    />
+                    <Text style={styles.infoValue}>{session.user.email}</Text>
+                  </View>
+                </View>
+              </ImageBackground>
+              <CustomButton
+                label="로그아웃"
+                onPress={async () => {
+                  await supabase.auth.signOut();
+                }}
+                // style={styles.logoutButton}
+              />
             </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>이름:</Text>
-              <Text style={styles.infoValue}>
-                {profile?.name || getUserMetadata().name}
+          ) : (
+            <View style={styles.profileContainer_notLoggedIn}>
+              <Text style={styles.profileContainer_notLoggedIn_text}>
+                로그인하고 더 많은 기능을 이용해 보세요!
               </Text>
+              <CustomButton
+                label="로그인"
+                onPress={() => {
+                  router.push("/auth");
+                }}
+                // style={styles.loginButton}
+              />
             </View>
+          )}
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>학과:</Text>
-              <Text style={styles.infoValue}>
-                {profile?.dept || getUserMetadata().dept}
-              </Text>
-            </View>
-          </View>
-          <CustomButton
-            label="로그아웃"
-            onPress={async () => {
-              await supabase.auth.signOut();
-            }}
-            // style={styles.logoutButton}
-          />
+          <Text style={[commonStyles.h1, styles.shortcutTitle]}>바로가기</Text>
+          <ShortcutList />
         </View>
-      ) : (
-        <View style={styles.profileContainer_notLoggedIn}>
-          <Text style={styles.profileContainer_notLoggedIn_text}>
-            로그인하고 더 많은 기능을 이용해 보세요!
-          </Text>
-          <CustomButton
-            label="로그인"
-            onPress={() => {
-              router.push("/auth");
-            }}
-            // style={styles.loginButton}
-          />
-        </View>
-      )}
-
-      <Text style={[commonStyles.h1, styles.shortcutTitle]}>바로가기</Text>
-      <ShortcutList />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -157,6 +178,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.GOLD_100,
     flex: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   profileContainer: {
     marginVertical: 16,
@@ -167,9 +190,23 @@ const styles = StyleSheet.create({
   },
   profileInnerContainer: {
     backgroundColor: colors.BLUE_500,
-    padding: 16,
+    // padding: 16,
     borderRadius: 16,
     elevation: 2,
+    // overflow: 'hidden',
+    marginBottom: 12,
+    // height: '52%'
+  },
+  logoContainer: {
+    alignSelf: "flex-start", // 왼쪽 정렬을 위해 추가
+    marginBottom: 32,
+    paddingLeft: 2,
+  },
+  logo: {
+    height: 50, // 너비만 지정
+    aspectRatio: 2.77, // 로고 이미지의 가로/세로 비율 (예: 100/36 ≈ 2.77)
+    alignSelf: "flex-start", // 왼쪽 정렬
+    // height 속성은 제거 (aspectRatio가 자동으로 계산)
   },
   profileContainer_notLoggedIn: {
     padding: 16,
@@ -185,18 +222,36 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontWeight: "bold",
   },
+  profileDept: {
+    fontSize: 20,
+    fontWeight: "400",
+    color: colors.WHITE,
+    marginLeft: 6,
+    // marginVertical: 8,
+  },
+  profileName: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: colors.WHITE,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
   infoRow: {
     flexDirection: "row",
-    marginVertical: 8,
+    marginVertical: 4,
+    marginLeft: 4,
   },
   infoLabel: {
     width: 80,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#555",
+    color: colors.WHITE,
   },
   infoValue: {
     flex: 1,
-    color: "#333",
+    color: colors.WHITE,
+    fontSize: 16,
+    fontWeight: "400",
   },
   logoutButton: {
     marginTop: 16,
@@ -206,6 +261,19 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   shortcutTitle: {
-    marginTop: 16,
+    marginVertical: 16,
+  },
+  backgroundImage: {
+    // margin: 16,
+    borderRadius: 16,
+    opacity: 0.5,
+    height: "100%",
+    width: "100%",
+  },
+  contentOverlay: {
+    // backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 16,
+    padding: 16,
+    width: "100%", // 내용이 배경 위에 적절히 배치되도록 설정
   },
 });
