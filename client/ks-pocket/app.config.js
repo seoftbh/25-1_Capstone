@@ -14,6 +14,7 @@ module.exports = {
       openaiApiKey: process.env.OPENAI_API_KEY,
       openaiAssistantId: process.env.OPENAI_ASSISTANT_ID,
       kakaoMapApiKey: process.env.KAKAO_MAP_API_KEY,
+      openWeatherApiKey: process.env.OPENWEATHER_API_KEY,
     }
   }
 };

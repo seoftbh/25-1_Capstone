@@ -8,6 +8,7 @@ import CustomButton from "@/components/CustomButton";
 import FeedItem from "@/components/FeedItem";
 import InputField from "@/components/InputField";
 import TimeBasedGreeting from "@/components/TimeBasedGreeting";
+import WeatherWidget from "@/components/WeatherWidget";
 import { colors } from "@/constants";
 import { commonStyles } from "@/constants/CommonStyles";
 import { router } from "expo-router";
@@ -19,6 +20,7 @@ export default function HomeScreen() {
       <View style={styles.topSection}>
         {/* <Text style={commonStyles.h1}>즐거운 오후 되세요!</Text> */}
         <TimeBasedGreeting />
+        <WeatherWidget />
       </View>
       <View style={styles.middleSection}>
         <Pressable onPress={() => router.push("/assistant")}>
