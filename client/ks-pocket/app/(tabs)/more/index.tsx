@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignSelf: "flex-start", // 왼쪽 정렬을 위해 추가
-    marginBottom: 32,
+    marginBottom: 28,
     paddingLeft: 2,
   },
   logo: {
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   profileDept: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "400",
     color: colors.WHITE,
     marginLeft: 6,
