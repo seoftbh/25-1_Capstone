@@ -410,6 +410,12 @@ export default function AssistantScreen() {
           </View>
         )}
 
+<View style={styles.disclaimerContainer}>
+          <Text style={styles.disclaimerText}>
+            AI가 제공하는 답변은 참고용입니다. 중요한 정보는 반드시 직접 확인해 주세요.
+          </Text>
+        </View>
+
         <View style={styles.inputContainer}>
           <TextInput
             ref={inputRef}
@@ -547,6 +553,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BROWN_100,
     borderTopRightRadius: 4,
     paddingBottom: 12,
+    marginTop: 8,
+    marginBottom: 8,
   },
   messageText: {
     fontSize: 16,
@@ -574,7 +582,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     position: "absolute",
-    bottom: 80,
+    bottom: 120,
     alignSelf: "center",
     backgroundColor: colors.WHITE,
     padding: 10,
@@ -585,6 +593,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
+
+  // 화면 하단의 경고 문구
+  disclaimerContainer: {
+    // backgroundColor: colors.GOLD_500,
+    paddingVertical: 12,
+    // paddingHorizontal: 16,
+    // borderTopWidth: 1,
+    // borderTopColor: colors.GRAY_T200,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    color: colors.GRAY_700,
+    textAlign: 'center',
+    // fontStyle: 'italic',
+  },
+
+
+  // 입력창 
   inputContainer: {
     flexDirection: "row",
     padding: 10,

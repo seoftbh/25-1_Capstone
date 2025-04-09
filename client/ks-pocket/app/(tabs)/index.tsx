@@ -20,7 +20,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.middleSection}>
         <Pressable onPress={() => router.push("/assistant")}>
-          <Text style={[commonStyles.h3, styles.assistantEntrance]}>
+          <Text style={[styles.assistantEntrance]}>
             궁금한 게 있나요?
           </Text>
           <View style={styles.assistantButton}>
@@ -56,19 +56,19 @@ const styles = StyleSheet.create({
     // alignItems: "center",
   },
   assistantEntrance: {
-    marginBottom: 24,
+    marginBottom: 18,
     textAlign: "center",
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     color: colors.BROWN_800,
   },
   assistantButton: {
     backgroundColor: colors.WHITE,
     borderRadius: 32,
-    padding: 16,
-    paddingVertical: 18,
+    // padding: 8,
+    paddingVertical: 16,
     marginBottom: 32,
-    borderColor: colors.BROWN_400,
+    borderColor: colors.BROWN_300,
     borderWidth: 3,
     // elevation: 2,
     // shadowColor: colors.GRAY_300,
