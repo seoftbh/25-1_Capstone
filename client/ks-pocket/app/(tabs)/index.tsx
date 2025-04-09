@@ -7,6 +7,7 @@
 import CustomButton from "@/components/CustomButton";
 import FeedItem from "@/components/FeedItem";
 import InputField from "@/components/InputField";
+import TimeBasedGreeting from "@/components/TimeBasedGreeting";
 import { colors } from "@/constants";
 import { commonStyles } from "@/constants/CommonStyles";
 import { router } from "expo-router";
@@ -16,7 +17,8 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
       <View style={styles.topSection}>
-        <Text style={commonStyles.h1}>즐거운 오후 되세요!</Text>
+        {/* <Text style={commonStyles.h1}>즐거운 오후 되세요!</Text> */}
+        <TimeBasedGreeting />
       </View>
       <View style={styles.middleSection}>
         <Pressable onPress={() => router.push("/assistant")}>
