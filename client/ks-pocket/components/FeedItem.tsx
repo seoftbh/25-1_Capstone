@@ -101,7 +101,7 @@ const containerStyle = [
                 <Ionicons
                   name="ellipsis-vertical"
                   size={20}
-                  color={colors.GRAY_500}
+                  color={colors.BROWN_500}
                 />
               </Pressable>
             ) : null

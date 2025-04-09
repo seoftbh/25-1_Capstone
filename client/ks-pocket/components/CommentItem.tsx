@@ -124,19 +124,23 @@ function CommentItem({ comment }: CommentItemProps) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 8,
-    marginHorizontal: 8,
+    // marginTop: 8,
+    // marginHorizontal: 8,
     padding: 16,
-    borderRadius: 16,
+    // borderRadius: 16,
     backgroundColor: colors.WHITE,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 1,
+    // borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: 1,
+    // borderColor: colors.BROWN_300,
+    borderBottomColor: colors.BROWN_300,
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 1.41,
+    // elevation: 1,
   },
   contentContainer: {
     marginTop: 8,

@@ -9,7 +9,12 @@ import { router, Stack } from "expo-router";
 
 export default function AssistantLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: {backgroundColor: "aliceblue"} }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: "aliceblue" },
+      }}
+    >
       <Stack.Screen
         name="index"
         options={{
@@ -23,6 +28,10 @@ export default function AssistantLayout() {
               onPress={() =>
                 router.canGoBack() ? router.back() : router.replace("/")
               }
+              style={{
+                marginRight: 8,
+                marginTop: 4,
+              }}
             />
           ),
         }}

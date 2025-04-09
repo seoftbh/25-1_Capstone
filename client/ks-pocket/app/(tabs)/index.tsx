@@ -19,14 +19,13 @@ export default function HomeScreen() {
         <Text style={commonStyles.h1}>즐거운 오후 되세요!</Text>
       </View>
       <View style={styles.middleSection}>
-
         <Pressable onPress={() => router.push("/assistant")}>
-          <Text style={[commonStyles.h3, styles.assistantEntrance]}>궁금한 게 있나요?</Text>
-          <InputField 
-  placeholder="여기를 눌러 별이에게 물어보세요! ✨"
-  onPress={() => router.push("/assistant")}
-  editable={false} // 터치만 가능하게 입력은 비활성화
-/>
+          <Text style={[commonStyles.h3, styles.assistantEntrance]}>
+            궁금한 게 있나요?
+          </Text>
+          <View style={styles.assistantButton}>
+            <Text style={styles.assistantButtonText}>여기를 눌러 별이에게 물어보세요! ✨</Text>
+          </View>
         </Pressable>
       </View>
       <View style={styles.bottomSection}></View>
@@ -63,4 +62,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: colors.BROWN_800,
   },
-})
+  assistantButton: {
+    backgroundColor: colors.WHITE,
+    borderRadius: 32,
+    padding: 16,
+    paddingVertical: 18,
+    marginBottom: 32,
+    borderColor: colors.BROWN_400,
+    borderWidth: 3,
+    // elevation: 2,
+    // shadowColor: colors.GRAY_300,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  assistantButtonText: {
+    fontSize: 19,
+    fontWeight: "400", 
+    color: colors.BROWN_900,
+    textAlign: "center",
+    lineHeight: 24,
+  },
+});

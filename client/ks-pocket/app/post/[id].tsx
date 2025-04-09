@@ -188,7 +188,7 @@ export default function PostDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.GRAY_100,
+    backgroundColor: colors.BROWN_100,
   },
   loadingContainer: {
     flex: 1,
@@ -210,13 +210,15 @@ const styles = StyleSheet.create({
   },
   commentCount: {
     fontSize: 16,
-    color: colors.GRAY_500,
+    color: colors.BROWN_500,
     padding: 16,
     backgroundColor: colors.WHITE,
     // marginTop: 12,
   },
   commentsList: {
+    marginTop: 12,
     // paddingVertical: 8,
+    // paddingHorizontal: 8,
   },
   commentsLoading: {
     padding: 16,
