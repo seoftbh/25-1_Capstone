@@ -7,6 +7,7 @@ type WeatherData = {
   temperature: number;
   condition: string;
   icon: string;
+  updatedAt: string; // 업데이트 시간 추가
 };
 
 const weatherEmojis: Record<string, string> = {
@@ -24,6 +25,18 @@ const weatherEmojis: Record<string, string> = {
   Smoke: "💨 연기",
   Tornado: "🌀 태풍",
   default: "🌡️ 날씨 정보 없음",
+};
+
+// 시간 포맷팅 함수
+const formatUpdatedTime = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, "0");
+  const day = now.getDate().toString().padStart(2, "0");
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+
+  return `업데이트: ${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
 const WeatherWidget = () => {
@@ -65,11 +78,15 @@ const WeatherWidget = () => {
         const data = await response.json();
         console.log("날씨 데이터:", data);
 
+        // 현재 시간을 포맷팅하여 업데이트 시간으로 사용
+        const updatedTimeStr = formatUpdatedTime();
+
         // 한국어로 날씨 상태 표시
         setWeatherData({
           temperature: Math.round(data.main.temp),
           condition: data.weather[0].description, // 한글 날씨 설명
           icon: weatherEmojis[data.weather[0].main] || weatherEmojis.default,
+          updatedAt: updatedTimeStr,
         });
       } catch (err: any) {
         console.error("날씨 데이터 fetch 오류:", err);
@@ -103,10 +120,17 @@ const WeatherWidget = () => {
   return (
     <View style={styles.container}>
       <View style={styles.weatherInnerContainer}>
-      <Text style={styles.weatherText}>지금 학교 날씨는</Text>
+        <Text style={styles.weatherText}>지금 학교 날씨는</Text>
         <Text style={styles.weatherEmoji}>{weatherData?.icon}</Text>
-        <Text style={styles.temperatureText}>, {weatherData?.temperature}°C</Text>
+        <Text style={styles.temperatureText}>
+          , {weatherData?.temperature}°C
+        </Text>
         {/* <Text style={styles.conditionText}>{weatherData?.condition}</Text> */}
+      </View>
+
+      {/* 업데이트 시간 표시 */}
+      <View style={styles.updateTimeContainer}>
+        <Text style={styles.updateTimeText}>{weatherData?.updatedAt}</Text>
       </View>
     </View>
   );
@@ -115,14 +139,17 @@ const WeatherWidget = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.GOLD_200,
-    borderRadius: 16,
+    borderRadius: 24,
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 20,
     // marginHorizontal: 16,
-    marginTop: 20,
+    marginTop: 32,
+    marginHorizontal: 8,
     alignItems: "center",
     // borderWidth: 1,
     // borderColor: colors.BROWN_300,
+    // position: "relative", // 상대적 위치 설정
+    // width: "100%", // 전체 너비 사용
   },
   weatherInnerContainer: {
     flexDirection: "row",
@@ -162,6 +189,23 @@ const styles = StyleSheet.create({
     color: colors.RED_500,
     marginTop: 8,
     textAlign: "center",
+  },
+  // 업데이트 시간 관련 스타일
+  updateTimeContainer: {
+    // position: "absolute",
+    // bottom: 8,
+    // left: 12,
+    // backgroundColor: 'pink',
+    width: "100%",
+
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+  updateTimeText: {
+    fontSize: 12,
+    color: colors.BROWN_400,
+    // fontStyle: "italic",
   },
 });
 

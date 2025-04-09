@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     color: colors.GRAY_900,
   },
   subtitleText: {
-    fontSize: 16,
+    fontSize: 18,
     marginTop: 8,
     color: colors.GRAY_600,
     fontWeight: "500",

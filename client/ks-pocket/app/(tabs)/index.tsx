@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     // alignItems: "center",
     backgroundColor: colors.GOLD_100,
+    // paddingHorizontal: 24,
   },
   topSection: {
     flex: 2,
@@ -72,6 +73,7 @@ const styles = StyleSheet.create({
     // padding: 8,
     paddingVertical: 16,
     marginBottom: 32,
+    marginHorizontal: 8,
     borderColor: colors.BROWN_300,
     borderWidth: 3,
     // elevation: 2,
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   assistantButtonText: {
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: "400", 
     color: colors.BROWN_900,
     textAlign: "center",
