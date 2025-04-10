@@ -32,7 +32,7 @@ const TimeBasedGreeting = () => {
         };
       } else if (currentHour >= 12 && currentHour < 18) {
         message = {
-          text: "좋은 오후예요! 🏙️",
+          text: "즐거운 오후예요! 🏙️",
           subtext: "남은 시간도 힘내봐요!",
         };
       } else if (currentHour >= 18 && currentHour < 21) {
