@@ -168,9 +168,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.WHITE,
     // borderColor: colors.GRAY_300,
     borderColor: colors.BROWN_200,
-    borderWidth: 3,
-    // borderWidth: StyleSheet.hairlineWidth,
-    // elevation: 2,
+    // borderWidth: 3,
+    borderWidth: StyleSheet.hairlineWidth,
+    elevation: 2,
     borderRadius: 16,
   },
   detailContainer: {

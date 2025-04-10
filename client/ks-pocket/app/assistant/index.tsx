@@ -422,7 +422,7 @@ export default function AssistantScreen() {
             style={styles.input}
             value={message}
             onChangeText={setMessage}
-            placeholder="메시지를 입력하세요..."
+            placeholder="무엇이든 물어보세요"
             placeholderTextColor="#AAA"
             multiline={true}
             enterKeyHint="send"

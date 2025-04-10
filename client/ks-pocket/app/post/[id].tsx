@@ -148,7 +148,7 @@ export default function PostDetailScreen() {
               ))
             ) : (
               <Text style={styles.noCommentsText}>
-                첫 댓글을 작성해보세요!
+                첫번째 댓글을 작성해보세요!
               </Text>
             )}
           </View>
