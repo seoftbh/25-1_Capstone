@@ -11,7 +11,7 @@ interface CommentItemProps {
   comment: {
     id: string;
     content: string;
-    createdAt: string;
+    created_at: string;
     user_id?: string;
     name?: string;
     dept?: string;
@@ -99,7 +99,7 @@ function CommentItem({ comment }: CommentItemProps) {
         nickname={comment.name || comment.author?.nickname || "익명"}
         imageUri={comment.author?.imageUri}
         dept={comment.dept || comment.author?.dept}
-        createdAt={comment.createdAt}
+        createdAt={comment.created_at}
         onPress={() => {}}
         option={
           isCommentOwner && !comment.isDeleted ? (
