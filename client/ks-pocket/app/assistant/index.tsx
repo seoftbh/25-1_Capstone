@@ -134,7 +134,7 @@ export default function AssistantScreen() {
       // 오류 메시지 추가
       const errorMessage: MessageType = {
         id: (Date.now() + 1).toString(),
-        content: "앗, 죄송해요. 😢\n 메시지 처리 중에 오류가 있었어요.\n잠시 후 다시 시도해 주세요!",
+        content: "앗, 죄송해요. 😢\n메시지 처리 중에 오류가 있었어요.\n잠시 후 다시 시도해 주세요!",
         sender: "assistant",
         timestamp: new Date(),
       };
