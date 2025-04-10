@@ -13,6 +13,7 @@ type PostFormValues = {
   title: string;
   description: string;
   imageUris: string[];
+  image_url?: string; // 이미지 URL 추가
   name?: string;    // 사용자 이름 (선택적)
   dept?: string;    // 사용자 학과 (선택적)
 };
@@ -41,6 +42,11 @@ export default function useCreatePost() {
         console.error("프로필 정보 가져오기 오류:", profileError);
       }
 
+      // 이미지 URL 로깅 (디버깅용)
+      if (postData.image_url) {
+        console.log("저장할 이미지 URL:", postData.image_url);
+      }
+
       // posts 테이블에 데이터 삽입 - 이름과 학과 정보 포함
       const { data, error } = await supabase
         .from("posts")
@@ -50,7 +56,7 @@ export default function useCreatePost() {
           user_id: user.id,
           name: postData.name || profileData?.name || null,
           dept: postData.dept || profileData?.dept || null,
-          // image_urls 필드 제거
+          image_url: postData.image_url, // DB 컬럼명에 맞게 이름 지정
         })
         .select()
         .single();

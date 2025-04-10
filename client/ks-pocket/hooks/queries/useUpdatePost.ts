@@ -9,6 +9,7 @@ type UpdatePostParams = {
   body: {
     title: string;
     description: string;
+    image_url?: string; // 선택적 이미지 URL
   };
 };
 

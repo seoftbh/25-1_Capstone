@@ -2,7 +2,7 @@ import { colors } from "@/constants";
 import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 import FeedHeader from "./FeedHeader";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import useDeletePost from "@/hooks/queries/useDeletePost";
@@ -20,15 +20,74 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
   const { showActionSheetWithOptions } = useActionSheet();
   const deletePost = useDeletePost();
   const currentUser = useAuthStore(state => state.user);
+  const [imageError, setImageError] = useState(false);
+  const [postData, setPostData] = useState(post);
   
   // 작성자 ID와 현재 사용자 ID 일치 여부 확인
   const isAuthor = post.userId === currentUser?.id;
 
   // isDetail 속성에 따라 다른 스타일을 적용
-const containerStyle = [
-  styles.container,
-  isDetail ? styles.detailContainer : null
-];
+  const containerStyle = [
+    styles.container,
+    isDetail ? styles.detailContainer : null
+  ];
+
+  //////////////////////////////////
+  // 이미지 URL 디버깅
+  useEffect(() => {
+    console.log("Post 데이터:", {
+      id: post.id,
+      image_url: post.image_url
+    });
+  }, [post]);
+
+  // 디버깅을 위한 URL 테스트 코드
+  useEffect(() => {
+    if (post.image_url) {
+      fetch(post.image_url, { method: 'HEAD' })
+        .then(response => {
+          console.log("이미지 URL 검증:", {
+            url: post.image_url,
+            status: response.status,
+            ok: response.ok,
+            contentType: response.headers.get('content-type')
+          });
+        })
+        .catch(error => {
+          console.error("이미지 URL 확인 실패:", error);
+        });
+    }
+  }, [post.image_url]);
+
+  // 처음 로드될 때 image_url이 없으면 데이터베이스에서 다시 확인
+  useEffect(() => {
+    if (!post.image_url && post.id) {
+      const fetchPostImage = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('posts')
+            .select('image_url')
+            .eq('id', post.id)
+            .single();
+            
+          if (error) {
+            console.error('이미지 URL 조회 오류:', error);
+            return;
+          }
+          
+          if (data?.image_url) {
+            console.log('DB에서 가져온 이미지 URL:', data.image_url);
+            setPostData({...post, image_url: data.image_url});
+          }
+        } catch (err) {
+          console.error('이미지 URL 조회 중 오류:', err);
+        }
+      };
+      
+      fetchPostImage();
+    }
+  }, [post.id, post.image_url]);
+  //////////////////////////////////
 
   const handlePressOption = () => {
     const options = ["삭제", "수정", "취소"];
@@ -110,9 +169,24 @@ const containerStyle = [
         {/* 피드 제목 */}
         <Text style={styles.title}>{post.title}</Text>
         {/* 피드 내용 */}
-        <Text numberOfLines={3} style={styles.desc}>
+        <Text numberOfLines={isDetail ? undefined : 3} style={styles.desc}>
           {post.description}
         </Text>
+        {/* 이미지 표시 - postData 사용 */}
+        {postData.image_url && !imageError ? (
+          <View style={styles.imageContainer}>
+            <Image 
+              source={{ uri: postData.image_url }}
+              style={isDetail ? styles.detailImage : styles.image}
+              resizeMode="cover"
+              onLoad={() => console.log("이미지 로드 성공:", post.id)}
+              onError={(e) => {
+                console.error("이미지 로드 실패:", e.nativeEvent.error);
+                setImageError(true);
+              }}
+            />
+          </View>
+        ) : null}
         {/* 조회수 및 댓글 수 */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -241,6 +315,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.BLACK,
     marginBottom: 4,
+  },
+  imageContainer: {
+    marginTop: 10,
+    marginBottom: 6,
+    width: '100%',
+    overflow: 'hidden',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.GRAY_300,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    backgroundColor: colors.GRAY_200, // 로딩 상태에서 배경색 표시
+  },
+  detailImage: {
+    width: '100%',
+    height: 250,
+    backgroundColor: colors.GRAY_200,
   },
 });
 

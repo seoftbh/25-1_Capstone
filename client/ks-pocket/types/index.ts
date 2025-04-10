@@ -90,6 +90,7 @@ interface Post {
   comments?: PostComment[];
   name?: string;
   dept?: string;
+  image_url?: string; // 게시물 이미지 URL
 }
 
 export type {
