@@ -132,7 +132,7 @@ export default function PostDetailScreen() {
         contentContainerStyle={styles.scrollViewContainer}
         keyboardShouldPersistTaps="handled"
       >
-        <View>
+        <View style={{ paddingBottom: 80 }}>
           <FeedItem post={post} isDetail={true} />
           <Text style={styles.commentCount}>
             댓글 {post.comment_count || 0}개
