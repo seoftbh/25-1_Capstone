@@ -16,6 +16,7 @@ type FormValues = {
   title: string;
   description: string;
   imageUris: string[];
+  image_url?: string | null;
 };
 
 export default function PostWriteScreen() {
