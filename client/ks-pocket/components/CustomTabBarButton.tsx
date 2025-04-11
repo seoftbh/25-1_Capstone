@@ -2,7 +2,11 @@ import { colors } from "@/constants";
 import React from "react";
 import { TouchableOpacity, Image, View, StyleSheet } from "react-native";
 
-const CustomTabBarButton = ({ children, onPress }: any) => {
+interface CustomTabBarButtonProps {
+  onPress?: () => void;
+}
+
+export default function CustomTabBarButton({ onPress }: CustomTabBarButtonProps) {
   return (
     <TouchableOpacity
       style={styles.container}
@@ -11,7 +15,7 @@ const CustomTabBarButton = ({ children, onPress }: any) => {
     >
       <View style={styles.button}>
         <Image
-          source={require("../assets/images/sparkles_3d.png")}
+          source={require("../assets/images/center-icon.png")}
           style={styles.image}
           resizeMode="contain"
         />
@@ -40,9 +44,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   image: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
   },
 });
-
-export default CustomTabBarButton;

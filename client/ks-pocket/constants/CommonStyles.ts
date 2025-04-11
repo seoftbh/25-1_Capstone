@@ -19,6 +19,16 @@ export const commonStyles = StyleSheet.create({
     color: "black",
     marginTop: 20,
   },
+  text: {
+    fontSize: 16,
+    color: "black",
+    marginVertical: 10,
+  },
+  smallText: {
+    fontSize: 14,
+    color: "black",
+    marginVertical: 5,
+  },
   p: {
     fontSize: 16,
     color: "black",

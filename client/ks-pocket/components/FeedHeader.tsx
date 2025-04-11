@@ -1,22 +1,29 @@
 import { colors } from "@/constants";
 import React, { ReactNode } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko"; // 한국어 로케일 추가
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
 
-interface ProfileProps {
+interface FeedHeaderProps {
   onPress: () => void;
   nickname: string;
+  dept?: string; // 학과 정보 추가
   imageUri?: string; // 이미지가 없을 수도 있으므로 선택적으로 설정
   createdAt: string;
   option?: ReactNode;
 }
 
-function Profile({
+function FeedHeader({
   onPress,
   imageUri,
   nickname,
+  dept,
   createdAt,
   option,
-}: ProfileProps) {
+}: FeedHeaderProps) {
   return (
     <View style={styles.container}>
       <Pressable style={styles.profileContainer} onPress={onPress}>
@@ -24,13 +31,16 @@ function Profile({
           source={
             imageUri
               ? { uri: imageUri }
-              : require("@/assets/images/react-logo.png")
+              : require("@/assets/images/avatar-gray.png")
           }
           style={styles.image}
         />
         <View style={{ gap: 2 }}>
-          <Text style={styles.nickname}>{nickname}</Text>
-          <Text style={styles.createdat}>{createdAt}</Text>
+          <View style={styles.userInfoContainer}>
+            <Text style={styles.nickname}>{nickname}</Text>
+            {dept && <Text style={styles.dept}>{dept}</Text>}
+          </View>
+          <Text style={styles.createdat}>{dayjs(createdAt).fromNow()}</Text>
         </View>
       </Pressable>
       {option}
@@ -58,9 +68,18 @@ const styles = StyleSheet.create({
     borderColor: colors.GRAY_300,
     marginRight: 6,
   },
+  userInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   nickname: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  dept: {
+    fontSize: 14,
+    color: colors.GRAY_700,
   },
   createdat: {
     fontSize: 14,
@@ -68,4 +87,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile;
+export default FeedHeader;

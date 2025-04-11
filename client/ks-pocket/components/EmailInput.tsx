@@ -33,7 +33,6 @@ function EmailInput() {
           returnKeyType="next" // 키보드의 다음 버튼을 눌렀을 때 다음 필드로 포커스 이동
           submitBehavior="submit" // 키보드가 닫히지 않고 폼 제출
           onSubmitEditing={() => setFocus("password")} // 다음 필드로 포커스 이동
-          autoFocus // 화면이 렌더링될 때 자동으로 포커스
         />
       )}
     />
