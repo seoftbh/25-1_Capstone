@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "dev.seoftbh.kspocket",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/ks-pocket-adaptive-icon.png",
         "backgroundColor": "#e5a137"
@@ -36,6 +37,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "326342c9-34fb-47cb-a690-36b348c84f2d"
+      }
+    },
+    "owner": "seoftbh"
   }
 }
