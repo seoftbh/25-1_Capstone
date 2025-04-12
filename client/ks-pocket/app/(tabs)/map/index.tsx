@@ -14,6 +14,7 @@ import CategorySelector from "./components/CategorySelector";
 import ReturnToLocationButton from "./components/ReturnToLocationButton";
 import KakaoMapView from "./components/KakaoMapView";
 import { MarkerData, MARKERS } from "./data/mapData";
+import CampusMapView from "./components/CampusMapView";
 
 export default function MapScreen() {
   const categories = [
@@ -144,30 +145,36 @@ export default function MapScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 카테고리 버튼 영역 */}
-      <CategorySelector
-        categories={categories}
-        activeCategories={activeCategories}
-        onToggleCategory={handleToggleCategory}
-        onInitCategories={handleInitCategories}
-      />
-
-      {/* 경계 이탈 시 돌아가기 버튼 */}
-      {isOutOfBounds && (
-        <ReturnToLocationButton onPress={goToDefaultLocation} />
-      )}
-
-      {/* 지도 영역 */}
-      <KakaoMapView
-        ref={webViewRef}
-        kakaoMapApiKey={kakaoMapApiKey}
-        markers={MARKERS}
-        location={location}
-        bounds={bounds}
-        onMessage={onMessage}
-      />
+      <CampusMapView />
     </SafeAreaView>
   );
+
+  // return (
+  //   <SafeAreaView style={styles.container}>
+  //     {/* 카테고리 버튼 영역 */}
+  //     <CategorySelector
+  //       categories={categories}
+  //       activeCategories={activeCategories}
+  //       onToggleCategory={handleToggleCategory}
+  //       onInitCategories={handleInitCategories}
+  //     />
+
+  //     {/* 경계 이탈 시 돌아가기 버튼 */}
+  //     {isOutOfBounds && (
+  //       <ReturnToLocationButton onPress={goToDefaultLocation} />
+  //     )}
+
+  //     {/* 지도 영역 */}
+  //     <KakaoMapView
+  //       ref={webViewRef}
+  //       kakaoMapApiKey={kakaoMapApiKey}
+  //       markers={MARKERS}
+  //       location={location}
+  //       bounds={bounds}
+  //       onMessage={onMessage}
+  //     />
+  //   </SafeAreaView>
+  // );
 }
 
 const styles = StyleSheet.create({
