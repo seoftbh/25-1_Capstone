@@ -18,7 +18,7 @@ export default function AuthScreen() {
       </View>
       <View style={styles.middleContainer}>
         <Text style={styles.l3}>지금 로그인하고</Text>
-        <Text style={styles.l4}>편리한 캠퍼스 생활을 시작해 보아요</Text>
+        <Text style={styles.l4}>편리한 캠퍼스 생활을 시작해봐요!</Text>
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
