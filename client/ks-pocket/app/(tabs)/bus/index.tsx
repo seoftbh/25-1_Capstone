@@ -287,6 +287,7 @@ const TimeTableHeader = () => (
     <View style={styles.timeTableHeaderCell}>
       <Text style={styles.timeTableHeaderText}>오전</Text>
     </View>
+    <View style={styles.timeTableDivider} />
     <View style={styles.timeTableHeaderCell}>
       <Text style={styles.timeTableHeaderText}>오후</Text>
     </View>
@@ -736,60 +737,57 @@ const toggleNotification = async (id: string) => {
               }
             ]}
           >
+            {/* 상단 그림자 영역 - 탭하면 모달 닫힘 */}
             <TouchableOpacity
-              style={{ flex: 1, justifyContent: 'flex-end' }}
+              style={styles.modalTopSection}
               activeOpacity={1}
               onPress={handleSheetClose}
+            />
+            
+            {/* 하단 콘텐츠 영역 - 독립적으로 스크롤 가능 */}
+            <Animated.View 
+              style={[
+                styles.modalContent,
+                {
+                  transform: [
+                    {
+                      translateY: slideAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [300, 0], // 아래에서 위로 슬라이딩
+                      }),
+                    },
+                  ],
+                },
+              ]}
             >
-              <Animated.View 
-                style={[
-                  styles.modalContent,
-                  {
-                    transform: [
-                      {
-                        translateY: slideAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [300, 0], // 아래에서 위로 슬라이딩
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <TouchableOpacity 
-                  activeOpacity={1} 
-                  style={{ flex: 1 }}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  {/* 모달 헤더 */}
-                  <View style={styles.bottomSheetHeader}>
-                    <Text style={styles.bottomSheetTitle}>
-                      {selectedStop ? `${selectedStop} 전체 시간표` : "버스 시간표"}
-                    </Text>
-                    <TouchableOpacity onPress={handleSheetClose} style={styles.closeButton}>
-                      <MaterialIcons name="close" size={24} color={colors.BROWN_800} />
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* 시간표 테이블 */}
-                  <ScrollView style={styles.timeTableContainer}>
-                    <TimeTableHeader />
-                    
-                    {selectedStop && 
-                      getFormattedTimeTable(selectedStop).map((row, index) => (
-                        <TimeTableRow 
-                          key={index} 
-                          am={row.am} 
-                          pm={row.pm} 
-                        />
-                      ))
-                    }
-                  </ScrollView>
+              {/* 모달 헤더 */}
+              <View style={styles.bottomSheetHeader}>
+                <Text style={styles.bottomSheetTitle}>
+                  {selectedStop ? `${selectedStop} 전체 시간표` : "버스 시간표"}
+                </Text>
+                <TouchableOpacity onPress={handleSheetClose} style={styles.closeButton}>
+                  <MaterialIcons name="close" size={24} color={colors.BROWN_800} />
                 </TouchableOpacity>
-              </Animated.View>
-            </TouchableOpacity>
+              </View>
+
+              {/* 시간표 테이블 - 직접 스크롤 가능 */}
+              <ScrollView 
+                style={styles.timeTableContainer}
+                contentContainerStyle={styles.timeTableContent}
+              >
+                <TimeTableHeader />
+                
+                {selectedStop && 
+                  getFormattedTimeTable(selectedStop).map((row, index) => (
+                    <TimeTableRow 
+                      key={index} 
+                      am={row.am} 
+                      pm={row.pm} 
+                    />
+                  ))
+                }
+              </ScrollView>
+            </Animated.View>
           </Animated.View>
         </Modal>
 
@@ -1088,7 +1086,7 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end', // 화면 하단에 위치
+    justifyContent: 'flex-end', // 하단부에 콘텐츠 배치
   },
   modalContent: {
     backgroundColor: colors.GOLD_100,
@@ -1096,7 +1094,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingVertical: 16,
     paddingHorizontal: 16,
-    height: '60%', // 화면의 60%를 차지하도록 설정
+    height: '70%', // 화면의 60%를 차지하도록 설정
     // 그림자 효과
     shadowColor: "#000",
     shadowOffset: {
@@ -1106,6 +1104,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 5,
     elevation: 5,
+  },
+  modalTopSection: {
+    flex: 1, // 상단 영역이 남은 공간을 차지하도록 설정
+  },
+  timeTableContainer: {
+    flex: 1,
+  },
+  timeTableContent: {
+    paddingBottom: 20, // 스크롤 시 여백 추가
   },
   bottomSheetHeader: {
     flexDirection: "row",
@@ -1124,9 +1131,6 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
-  timeTableContainer: {
-    flex: 1,
-  },
   timeTableHeaderRow: {
     flexDirection: "row",
     backgroundColor: colors.BROWN_500,
@@ -1140,10 +1144,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  timeTableDivider: {
+    // width: StyleSheet.hairlineWidth,
+    width: 1.2,
+    backgroundColor: colors.BROWN_300,
+    height: "58%",
+    alignSelf: "center",
+  },
   timeTableHeaderText: {
     fontSize: 16,
     fontWeight: "bold",
     color: colors.WHITE,
+    paddingBottom: 2,
   },
   timeTableRow: {
     flexDirection: "row",
