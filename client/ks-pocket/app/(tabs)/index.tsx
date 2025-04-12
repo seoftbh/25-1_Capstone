@@ -12,11 +12,19 @@ import WeatherWidget from "@/components/WeatherWidget";
 import { colors } from "@/constants";
 import { commonStyles } from "@/constants/CommonStyles";
 import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { View, Text, SafeAreaView, Pressable, StyleSheet } from "react-native";
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
+      {/* 상태바 설정: barStyle을 dark-content로 변경하여 어두운 색상의 아이콘 표시 */}
+      <StatusBar
+        style="dark"
+        translucent={false}
+        hideTransitionAnimation="fade"
+        backgroundColor={colors.GOLD_100}
+      />
       <View style={styles.topSection}>
         {/* <Text style={commonStyles.h1}>즐거운 오후 되세요!</Text> */}
         <TimeBasedGreeting />
@@ -24,11 +32,11 @@ export default function HomeScreen() {
       </View>
       <View style={styles.middleSection}>
         <Pressable onPress={() => router.push("/assistant")}>
-          <Text style={[styles.assistantEntrance]}>
-            궁금한 게 있나요?
-          </Text>
+          <Text style={[styles.assistantEntrance]}>궁금한 게 있나요?</Text>
           <View style={styles.assistantButton}>
-            <Text style={styles.assistantButtonText}>여기를 눌러 별이에게 물어보세요! ✨</Text>
+            <Text style={styles.assistantButtonText}>
+              여기를 눌러 별이에게 물어보세요! ✨
+            </Text>
           </View>
         </Pressable>
       </View>
@@ -86,7 +94,7 @@ const styles = StyleSheet.create({
   },
   assistantButtonText: {
     fontSize: 18,
-    fontWeight: "400", 
+    fontWeight: "400",
     color: colors.WHITE,
     textAlign: "center",
     lineHeight: 24,
