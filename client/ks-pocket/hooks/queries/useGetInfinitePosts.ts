@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Post } from "@/types"; // @/types에서 Post 타입 가져오기
+import { Post } from "@/types";
 
 const POSTS_PER_PAGE = 10;
 
@@ -8,20 +8,24 @@ export default function useGetInfinitePosts() {
   return useInfiniteQuery({
     queryKey: ["posts"],
     queryFn: async ({ pageParam = 0 }) => {
+      console.log("페이지 요청:", pageParam); // 디버깅용
+      
       const from = pageParam * POSTS_PER_PAGE;
       const to = from + POSTS_PER_PAGE - 1;
       
       // posts 테이블에서 페이징 처리하여 데이터 가져오기
       const { data, error } = await supabase
         .from("posts")
-        .select("*") // 모든 필드 선택
-        .order("created_at", { ascending: false }) // 최신 글부터 정렬
+        .select("*")
+        .order("created_at", { ascending: false })
         .range(from, to);
       
       if (error) {
         console.error("Supabase 에러:", error);
         throw error;
       }
+
+      console.log(`페이지 ${pageParam} 데이터 로드: ${data.length}개 항목`); // 디버깅용
       
       // Supabase 응답 데이터를 Post 타입에 맞게 변환
       return data.map(item => ({
@@ -30,21 +34,28 @@ export default function useGetInfinitePosts() {
         title: item.title,
         description: item.description,
         createdAt: item.created_at,
-        name: item.name, // name 필드 추가
-        dept: item.dept, // dept 필드 추가
-        // @/types의 Post 타입에 필요한 다른 속성들도 여기서 매핑
-        // 예를 들어 author, imageUris 등이 필요하다면 여기서 변환
+        name: item.name,
+        dept: item.dept,
         author: {
-          nickname: item.name || "Unknown", // name을 nickname으로 사용
-          imageUri: item.avatar || "" // avatar 필드가 있다면 사용
+          nickname: item.name || "Unknown",
+          imageUri: item.avatar || ""
         },
         imageUris: item.image_uris || [],
-        // 그 외 필요한 필드들
+        image_url: item.image_url || "",
       })) as Post[];
     },
     getNextPageParam: (lastPage, allPages) => {
-      // 마지막 페이지의 아이템 수가 POSTS_PER_PAGE와 같을 경우 다음 페이지가 있다고 간주
-      return lastPage.length === POSTS_PER_PAGE ? allPages.length : undefined;
+      // 디버깅용 로그 추가
+      console.log(`마지막 페이지 항목 수: ${lastPage.length}, 전체 페이지 수: ${allPages.length}`);
+      
+      // 마지막 페이지가 비어있거나 항목 수가 POSTS_PER_PAGE보다 작으면 더 이상 페이지가 없음
+      if (lastPage.length === 0 || lastPage.length < POSTS_PER_PAGE) {
+        console.log("더 이상 페이지가 없습니다.");
+        return undefined;
+      }
+      
+      // 다음 페이지 번호 반환
+      return allPages.length;
     },
     initialPageParam: 0,
   });
