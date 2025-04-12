@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
     // marginHorizontal: 16,
-    marginTop: 32,
+    marginTop: 24,
     marginHorizontal: 8,
     alignItems: "center",
     // borderWidth: 1,

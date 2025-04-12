@@ -3,6 +3,7 @@ const colors = {
   BLACK: "#000",
 
   GOLD_100: "#FFF8E5",
+  GOLD_150: "#ffedb9",
   GOLD_200: "#FFE9A9",
   GOLD_500: "#FFD664",
   GOLD_700: "#F0B62F",
@@ -17,6 +18,7 @@ const colors = {
   BROWN_200: "#E8E1D9",
   BROWN_300: "#D8CFC4",
   BROWN_400: "#C9B7A1",
+  BROWN_490: "#8f8781",
   BROWN_500: "#68635E",
   BROWN_800: "#2B1907",
   BROWN_900: "#1F0D00",
