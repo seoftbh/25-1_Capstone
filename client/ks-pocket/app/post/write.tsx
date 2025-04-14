@@ -4,9 +4,9 @@ import TitleInput from "@/components/TitleInput";
 import useCreatePost from "@/hooks/queries/useCreatePost";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Image, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { colors } from "@/constants";
@@ -24,12 +24,13 @@ export default function PostWriteScreen() {
   const createPost = useCreatePost();
   const { pickImage, uploadImage } = useImageUpload();
   const [image_url, setImage_url] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const postForm = useForm<FormValues>({
     defaultValues: {
       title: "",
       description: "",
-      // imageUris: [],
+      imageUris: [],
     },
   });
 
@@ -43,48 +44,67 @@ export default function PostWriteScreen() {
     }
   };
 
-  const handleSubmit = async () => {
-    const { title, description } = postForm.getValues();
-
-    if (image_url) {
+  const onSubmit = useCallback(async (formValues: FormValues) => {
+    if (isSubmitting) return;
+    
+    try {
+      setIsSubmitting(true);
+      
       const postData = {
-        title,
-        description,
-        image_url: image_url,
+        title: formValues.title,
+        description: formValues.description,
+        image_url: image_url || undefined,
       };
-
-      const { data, error } = await supabase
-        .from('posts')
-        .insert([postData]);
-
-      if (error) {
-        console.error("Error saving post:", error);
-      } else {
+      
+      console.log("Submitting post data:", postData);
+      
+      // Supabase 직접 저장 방식
+      if (formValues.title && formValues.description) {
+        const { data, error } = await supabase
+          .from('posts')
+          .insert([postData]);
+          
+        if (error) {
+          console.error("Error saving post:", error);
+          Alert.alert("저장 실패", "게시물을 저장하는 중 오류가 발생했습니다.");
+          return;
+        }
+        
         console.log("Post saved successfully:", data);
+        // Alert.alert("성공", "게시물이 저장되었습니다.", [
+        //   { text: "확인", onPress: () => navigation.goBack() }
+        // ]);
+        navigation.goBack();
+      } else {
+        Alert.alert("입력 오류", "제목과 내용을 모두 입력해주세요.");
       }
+      
+      // Custom hook 방식 (기존 코드는 주석 처리)
+      // createPost.mutate(postData);
+    } catch (error) {
+      console.error("Submit error:", error);
+      Alert.alert("오류 발생", "게시물 저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
-  };
+  }, [image_url, navigation, isSubmitting]);
 
-  const onSubmit = (formValues: FormValues) => {
-    const postData = {
-      ...formValues,
-      image_url: image_url || undefined,
-    };
-    createPost.mutate(postData);
-  };
+  // 저장 버튼 렌더링 함수
+  // const renderSaveButton = useCallback(() => (
+  //   <CustomButton
+  //     label="저장"
+  //     onPress={() => postForm.handleSubmit(onSubmit)()}
+  //     size="md"
+  //     variant="primary"
+  //     disabled={isSubmitting}
+  //   />
+  // ), [postForm, onSubmit, isSubmitting]);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <CustomButton
-          label="저장"
-          onPress={postForm.handleSubmit(onSubmit)}
-          size="md"
-          variant="primary"
-        />
-      ),
-    });
-  }, [navigation, postForm.formState.isValid]);
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: renderSaveButton
+  //   });
+  // }, [navigation, renderSaveButton]);
 
   return (
     <KeyboardAwareScrollView style={styles.container}>
@@ -106,6 +126,17 @@ export default function PostWriteScreen() {
             </TouchableOpacity>
           </View>
         )}
+        
+        {/* 화면 내부에 저장 버튼 추가 (문제 해결 위한 대안) */}
+        <View style={styles.submitButtonContainer}>
+          <CustomButton
+            label="게시물 저장"
+            onPress={postForm.handleSubmit(onSubmit)}
+            size="lg"
+            variant="primary"
+            disabled={isSubmitting}
+          />
+        </View>
       </FormProvider>
     </KeyboardAwareScrollView>
   );
@@ -113,8 +144,8 @@ export default function PostWriteScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     margin: 16,
-    gap: 16,
   },
   imageButton: {
     flexDirection: "row",
@@ -147,5 +178,9 @@ const styles = StyleSheet.create({
     right: 8,
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 12,
+  },
+  submitButtonContainer: {
+    marginTop: 20,
+    marginBottom: 40,
   },
 });
