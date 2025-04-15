@@ -192,14 +192,14 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
           <View style={styles.statItem}>
             <Ionicons name="eye-outline" size={16} color={colors.GRAY_500} />
             <Text style={styles.statText}>
-              {post.viewCount || post.viewCount || 0}
+              {post.viewCount || 0}
             </Text>
           </View>
           <View style={styles.statItem}>
             {/* <Ionicons name="chatbubble-outline" size={16} color={colors.GRAY_500} /> */}
             <Ionicons name="chatbox-outline" size={16} color={colors.GRAY_500} />
             <Text style={styles.statText}>
-              {post.comment_count || post.comment_count || 0}
+              {post.comment_count || 0}
             </Text>
           </View>
         </View>

@@ -42,6 +42,8 @@ export default function useGetInfinitePosts() {
         },
         imageUris: item.image_uris || [],
         image_url: item.image_url || "",
+        viewCount: item.view_count || 0,
+        comment_count: item.comment_count || 0
       })) as Post[];
     },
     getNextPageParam: (lastPage, allPages) => {
