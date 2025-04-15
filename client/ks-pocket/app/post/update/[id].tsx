@@ -18,14 +18,15 @@ type FormValues = {
 
 export default function PostUpdateScreen() {
   const { id } = useLocalSearchParams();
-  const postId = typeof id === 'string' ? Number(id) : Array.isArray(id) ? Number(id[0]) : 0;
-  
+  const postId =
+    typeof id === "string" ? Number(id) : Array.isArray(id) ? Number(id[0]) : 0;
+
   const { data: post, isLoading } = useQuery({
     queryKey: ["post", postId],
     queryFn: () => getPostById(postId),
     enabled: !!postId,
   });
-  
+
   const navigation = useNavigation();
   const updatePost = useUpdatePost();
 
@@ -50,7 +51,7 @@ export default function PostUpdateScreen() {
 
   const onSubmit = (formValues: FormValues) => {
     if (!postId) return;
-    
+
     updatePost.mutate(
       {
         id: postId,
@@ -62,7 +63,7 @@ export default function PostUpdateScreen() {
       {
         onSuccess: () => {
           router.back();
-        }
+        },
       }
     );
   };
@@ -75,6 +76,7 @@ export default function PostUpdateScreen() {
           onPress={postForm.handleSubmit(onSubmit)}
           size="md"
           variant="primary"
+          style={{ display: "none" }} // 헤더에 버튼을 숨김 처리
         />
       ),
     });
@@ -99,6 +101,14 @@ export default function PostUpdateScreen() {
       <FormProvider {...postForm}>
         <TitleInput />
         <DescriptionInput />
+        <View style={styles.submitButtonContainer}>
+          <CustomButton
+            label="게시물 업데이트"
+            onPress={postForm.handleSubmit(onSubmit)}
+            size="lg"
+            variant="primary"
+          />
+        </View>
       </FormProvider>
     </KeyboardAwareScrollView>
   );
@@ -109,5 +119,9 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 16,
     gap: 16,
+  },
+  submitButtonContainer: {
+    marginTop: 20,
+    marginBottom: 40,
   },
 });
